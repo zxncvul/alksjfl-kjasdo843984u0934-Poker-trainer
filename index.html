@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" href="data:," />
+  <title>Range Trainer</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ========================================================================
+       CABECERA: marca, fuente de rangos activa, tabs de modo y toggle de
+       etiquetas. Las tabs cambian de modo sin recargar (ver js/ui/app.js).
+       ===================================================================== -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-title"><span class="brand-suit">♠</span> RANGE TRAINER</span>
+      <span class="brand-source" id="source-label"></span>
+    </div>
+
+    <nav class="tabs" id="mode-tabs" role="tablist" aria-label="Modos">
+      <button type="button" data-mode="study" role="tab">Estudio</button>
+      <button type="button" data-mode="training" role="tab">Entrenamiento</button>
+      <button type="button" data-mode="simulator" role="tab">Simulador</button>
+    </nav>
+
+    <div class="header-actions">
+      <button type="button" id="labels-toggle" class="icon-btn"
+              title="Mostrar u ocultar etiquetas de mano" aria-pressed="false">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+      <button type="button" id="stats-btn" class="icon-btn" title="Estadísticas">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/>
+        </svg>
+      </button>
+      <button type="button" id="config-btn" class="icon-btn" title="Configuración">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       CUERPO: matriz + paneles contextuales.
+       Todo el contenido dinámico lo genera js/ui/app.js a partir del motor.
+       ===================================================================== -->
+  <main class="app-main">
+    <section class="grid-section" aria-label="Matriz de manos">
+      <div class="status-bar">
+        <span id="status-label"></span>
+        <span id="status-stats"></span>
+      </div>
+      <div id="grid"></div>
+      <!-- En una sesión del simulador esta superficie sustituye a la matriz. -->
+      <section id="sim-stage" class="sim-stage" aria-label="Mesa del simulador"></section>
+    </section>
+
+    <aside id="panel" class="panel" aria-label="Controles"></aside>
+
+    <!-- Columna de análisis (solo escritorio): métricas y desgloses siempre
+         visibles. En móvil la oculta el CSS y la info vive en el panel. -->
+    <aside id="insights" class="insights" aria-label="Análisis"></aside>
+
+    <!-- Biblioteca visual y selector de entrenamiento compartido por todos
+         los modos. Se mantiene fuera de los tres bloques superiores. -->
+    <section id="range-gallery" class="range-gallery" aria-label="Galería de rangos"></section>
+
+  </main>
+
+  <!-- Barra de acciones fija (móvil): comprobar / siguiente / config sin
+       hacer scroll. La rellena js/ui/app.js según el estado del quiz. -->
+  <nav id="action-bar" class="action-bar" aria-label="Acciones rápidas"></nav>
+
+  <!-- ========================================================================
+       SCRIPTS — el orden importa:
+         1. core/hands.js        namespace RT + utilidades puras
+         2. core/range-engine.js registro y consultas de rangos
+         3. core/quiz-engine.js  motores de quiz (define la API de preguntas)
+         4. data/*.js            DATOS declarativos (rangos y preguntas)
+         5. ui/*.js              matriz e interfaz
+       Para añadir rangos o preguntas solo se tocan los archivos de data/.
+       ===================================================================== -->
+  <script src="js/core/hands.js"></script>
+  <script src="js/core/module-registry.js"></script>
+  <script src="js/core/range-engine.js"></script>
+  <script src="js/core/quiz-engine.js"></script>
+  <script src="js/core/stats.js"></script>
+  <script src="js/core/simulator-engine.js"></script>
+  <script src="js/data/ranges.data.js"></script>
+  <script src="js/data/ranges-extra.data.js"></script>
+  <script src="js/data/questions.data.js"></script>
+  <script src="js/ui/components.js"></script>
+  <script src="js/ui/grid.js"></script>
+  <script src="js/ui/settings.js"></script>
+  <script src="js/ui/range-gallery.js"></script>
+  <script src="js/ui/dialogs.js"></script>
+  <script src="js/ui/quizzes/quiz-common-ui.js"></script>
+  <script src="js/ui/quizzes/quiz-results-ui.js"></script>
+  <script src="js/ui/study/study-ui.js"></script>
+  <script src="js/ui/quizzes/range-quiz-ui.js"></script>
+  <script src="js/ui/quizzes/surgical-quiz-ui.js"></script>
+  <script src="js/ui/quizzes/training-ui.js"></script>
+  <script src="js/ui/simulator/table-view.js"></script>
+  <script src="js/ui/simulator-ui.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>
