@@ -24,6 +24,7 @@
   let container = null;
   let onHandToggle = null;           // callback (mano) => void
   let interactive = false;
+  let eventsWired = false;
 
   /* ------------------------------------------------------------------------
    * Construcción inicial del DOM (una sola vez).
@@ -55,7 +56,10 @@
         cells[hand] = cell;
       }
     }
-    wirePointerEvents();
+    if (!eventsWired) {
+      wirePointerEvents();
+      eventsWired = true;
+    }
   }
 
   /* ------------------------------------------------------------------------

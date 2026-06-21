@@ -1,0 +1,1146 @@
+EXPORTS LAB ? POT ODDS TRAINER
+Fuente: C:/Users/adria/Downloads/bateria_30_tests_pot_odds_trainer.txt
+Tests detectados: 30
+Exports generados: 30
+Errores: 0
+========================================================================
+TEST 01 · Gutshot pura en Flop
+Trampa: gutshot simple, sin Villain, sin positivas/negativas.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 5♦ 9♣
+Villain: --
+Board: 6♠ 8♥ A♦
+Turn: --
+River: --
+Cartas muertas: 5♦ 9♣ 6♠ 8♥ A♦
+Available deck: 47
+
+Bote: 25
+Apuesta: 8
+Ratio: 4.13:1
+Equity necesaria: 19.5%
+Mano Hero: Carta alta A
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 7♠ 7♥ 7♦ 7♣
+Outs brutas: 5♠ 5♥ 5♣ 6♥ 6♦ 6♣ 7♠ 7♥ 7♦ 7♣ 8♠ 8♦ 8♣ 9♠ 9♥ 9♦ A♠ A♥ A♣
+Outs utiles decision: 7♠ 7♥ 7♦ 7♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 25 + 8 + 8 = 41
+Equity necesaria = 8 / 41 = 19.5%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 19.5% => FOLD
+
+========================================================================
+TEST 02 · OESD clara en Flop
+Trampa: open ended directa, cálculo Flop x4.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: --
+River: --
+Cartas muertas: 8♣ 9♦ 6♠ 7♥ K♦
+Available deck: 47
+
+Bote: 30
+Apuesta: 10
+Ratio: 4.00:1
+Equity necesaria: 20.0%
+Mano Hero: Carta alta K
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs brutas: 5♠ 5♥ 5♦ 5♣ 6♥ 6♦ 6♣ 7♠ 7♦ 7♣ 8♠ 8♥ 8♦ 9♠ 9♥ 9♣ T♠ T♥ T♦ T♣ K♠ K♥ K♣
+Outs utiles decision: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+
+Equity turn: 16.0%
+Equity river: 32.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 30 + 10 + 10 = 50
+Equity necesaria = 10 / 50 = 20.0%
+Turn = 8 x 2 = 16.0%
+River = 8 x 4 = 32.0%
+32.0% >= 20.0% => CALL
+
+========================================================================
+TEST 03 · Flush draw con blocker muerto en Villain
+Trampa: carta de color en Villain no debe aparecer como out.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♣ 7♣
+Villain: K♣ Q♦
+Board: 2♣ 9♣ J♥
+Turn: --
+River: --
+Cartas muertas: A♣ 7♣ 2♣ 9♣ J♥ K♣ Q♦
+Available deck: 45
+
+Bote: 40
+Apuesta: 15
+Ratio: 3.67:1
+Equity necesaria: 21.4%
+Mano Hero: Carta alta A
+Mano Villain: Carta alta K
+
+Outs positivas: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣
+Outs negativas: --
+Outs limpias: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣
+Outs brutas: 2♠ 2♥ 2♦ 3♣ 4♣ 5♣ 6♣ 7♠ 7♥ 7♦ 8♣ 9♠ 9♥ 9♦ T♣ J♠ J♦ J♣ Q♣ A♠ A♥ A♦
+Outs utiles decision: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣
+
+Equity turn: 16.0%
+Equity river: 32.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 40 + 15 + 15 = 70
+Equity necesaria = 15 / 70 = 21.4%
+Turn = 8 x 2 = 16.0%
+River = 8 x 4 = 32.0%
+32.0% >= 21.4% => CALL
+
+========================================================================
+TEST 04 · Combo draw en Flop
+Trampa: escalera + color sin duplicar outs.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♣ 9♣
+Villain: A♦ K♦
+Board: 6♣ 7♣ 2♥
+Turn: --
+River: --
+Cartas muertas: 8♣ 9♣ 6♣ 7♣ 2♥ A♦ K♦
+Available deck: 45
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Carta alta 9
+Mano Villain: Carta alta A
+
+Outs positivas: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs negativas: --
+Outs limpias: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs brutas: 2♠ 2♦ 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ 6♠ 6♥ 6♦ 7♠ 7♥ 7♦ 8♠ 8♥ 8♦ 9♠ 9♥ 9♦ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs utiles decision: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+
+Equity turn: 30.0%
+Equity river: 60.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = 15 x 2 = 30.0%
+River = 15 x 4 = 60.0%
+60.0% >= 22.2% => CALL
+
+========================================================================
+TEST 05 · Par débil que no debería inflarse
+Trampa: mejoras técnicas basura frente a rango visible.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 4♦ 9♠
+Villain: A♣ K♣
+Board: 2♥ 7♣ Q♦
+Turn: --
+River: --
+Cartas muertas: 4♦ 9♠ 2♥ 7♣ Q♦ A♣ K♣
+Available deck: 45
+
+Bote: 20
+Apuesta: 10
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+Mano Hero: Carta alta Q
+Mano Villain: Carta alta A
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♠ 2♦ 2♣ 4♠ 4♥ 4♣ 7♠ 7♥ 7♦ 9♥ 9♦ 9♣ Q♠ Q♥ Q♣
+Outs utiles decision: --
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 20 + 10 + 10 = 40
+Equity necesaria = 10 / 40 = 25.0%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 25.0% => FOLD
+
+========================================================================
+TEST 06 · Overcards contra pareja visible
+Trampa: overcards contra pareja; clasificación útil/no útil.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♠ K♦
+Villain: 8♣ 8♥
+Board: 2♣ 7♦ Q♥
+Turn: --
+River: --
+Cartas muertas: A♠ K♦ 2♣ 7♦ Q♥ 8♣ 8♥
+Available deck: 45
+
+Bote: 35
+Apuesta: 10
+Ratio: 4.50:1
+Equity necesaria: 18.2%
+Mano Hero: Carta alta A
+Mano Villain: Pareja de 8
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♠ 2♥ 2♦ 7♠ 7♥ 7♣ Q♠ Q♦ Q♣ K♠ K♥ K♣ A♥ A♦ A♣
+Outs utiles decision: --
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 35 + 10 + 10 = 55
+Equity necesaria = 10 / 55 = 18.2%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 18.2% => FOLD
+
+========================================================================
+TEST 07 · Full ya hecho en Flop
+Trampa: MADE_HAND_MODE; no decidir por outs futuras.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: 7♠ 7♦
+Villain: A♣ K♣
+Board: 7♥ 2♣ 2♦
+Turn: --
+River: --
+Cartas muertas: 7♠ 7♦ 7♥ 2♣ 2♦ A♣ K♣
+Available deck: 45
+
+Bote: 60
+Apuesta: 25
+Ratio: 3.40:1
+Equity necesaria: 22.7%
+Mano Hero: Full de 7 con 2
+Mano Villain: Pareja de 2
+
+Outs positivas: 7♣
+Outs negativas: --
+Outs limpias: 7♣
+Outs brutas: 7♣
+Outs utiles decision: 7♣
+
+Equity turn: 2.0%
+Equity river: 4.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 60 + 25 + 25 = 110
+Equity necesaria = 25 / 110 = 22.7%
+Turn = 1 x 2 = 2.0%
+River = 1 x 4 = 4.0%
+4.0% < 22.7% => MANO HECHA
+
+========================================================================
+TEST 08 · Set buscando full/quads en Flop
+Trampa: set vs overpair, full/quads, cartas muertas.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: 9♠ 9♦
+Villain: A♥ A♣
+Board: 9♣ K♦ 2♥
+Turn: --
+River: --
+Cartas muertas: 9♠ 9♦ 9♣ K♦ 2♥ A♥ A♣
+Available deck: 45
+
+Bote: 45
+Apuesta: 20
+Ratio: 3.25:1
+Equity necesaria: 23.5%
+Mano Hero: Trio de 9
+Mano Villain: Pareja de A
+
+Outs positivas: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+Outs negativas: --
+Outs limpias: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+Outs brutas: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+Outs utiles decision: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+
+Equity turn: 14.0%
+Equity river: 28.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 45 + 20 + 20 = 85
+Equity necesaria = 20 / 85 = 23.5%
+Turn = 7 x 2 = 14.0%
+River = 7 x 4 = 28.0%
+28.0% >= 23.5% => MANO HECHA
+
+========================================================================
+TEST 09 · Color ya completado en Flop
+Trampa: flush hecho, no tratar como draw fallido.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: A♠ 9♠
+Villain: K♥ Q♥
+Board: 2♠ 6♠ J♠
+Turn: --
+River: --
+Cartas muertas: A♠ 9♠ 2♠ 6♠ J♠ K♥ Q♥
+Available deck: 45
+
+Bote: 70
+Apuesta: 30
+Ratio: 3.33:1
+Equity necesaria: 23.1%
+Mano Hero: Color al A
+Mano Villain: Carta alta K
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: --
+Outs utiles decision: --
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 70 + 30 + 30 = 130
+Equity necesaria = 30 / 130 = 23.1%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 23.1% => MANO HECHA
+
+========================================================================
+TEST 10 · Escalera ya hecha en Flop
+Trampa: straight hecha, MADE_HAND_MODE.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: 8♣ 9♦
+Villain: A♠ A♥
+Board: 6♠ 7♥ T♣
+Turn: --
+River: --
+Cartas muertas: 8♣ 9♦ 6♠ 7♥ T♣ A♠ A♥
+Available deck: 45
+
+Bote: 80
+Apuesta: 40
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+Mano Hero: Escalera al T
+Mano Villain: Pareja de A
+
+Outs positivas: J♠ J♥ J♦ J♣
+Outs negativas: --
+Outs limpias: J♠ J♥ J♦ J♣
+Outs brutas: J♠ J♥ J♦ J♣
+Outs utiles decision: J♠ J♥ J♦ J♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 80 + 40 + 40 = 160
+Equity necesaria = 40 / 160 = 25.0%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 25.0% => MANO HECHA
+
+========================================================================
+TEST 11 · Doble pareja vulnerable en Flop
+Trampa: Hero dobles, Villain con escalera; full outs y comparación.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: K♠ Q♠
+Villain: A♦ J♦
+Board: K♦ Q♥ T♣
+Turn: --
+River: --
+Cartas muertas: K♠ Q♠ K♦ Q♥ T♣ A♦ J♦
+Available deck: 45
+
+Bote: 55
+Apuesta: 25
+Ratio: 3.20:1
+Equity necesaria: 23.8%
+Mano Hero: Doble pareja de K y Q
+Mano Villain: Escalera al A
+
+Outs positivas: Q♦ Q♣ K♥ K♣
+Outs negativas: --
+Outs limpias: Q♦ Q♣ K♥ K♣
+Outs brutas: Q♦ Q♣ K♥ K♣
+Outs utiles decision: Q♦ Q♣ K♥ K♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 55 + 25 + 25 = 105
+Equity necesaria = 25 / 105 = 23.8%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 23.8% => MANO HECHA
+
+========================================================================
+TEST 12 · Flush draw dominado por blocker visible
+Trampa: color posible, A♣ muerto en Villain.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: Q♣ 8♣
+Villain: A♣ K♦
+Board: 2♣ 6♣ J♠
+Turn: --
+River: --
+Cartas muertas: Q♣ 8♣ 2♣ 6♣ J♠ A♣ K♦
+Available deck: 45
+
+Bote: 42
+Apuesta: 14
+Ratio: 4.00:1
+Equity necesaria: 20.0%
+Mano Hero: Carta alta Q
+Mano Villain: Carta alta A
+
+Outs positivas: 3♣ 4♣ 5♣ 7♣ 9♣ T♣ J♣ K♣
+Outs negativas: --
+Outs limpias: 3♣ 4♣ 5♣ 7♣ 9♣ T♣ J♣ K♣
+Outs brutas: 2♠ 2♥ 2♦ 3♣ 4♣ 5♣ 6♠ 6♥ 6♦ 7♣ 8♠ 8♥ 8♦ 9♣ T♣ J♥ J♦ J♣ Q♠ Q♥ Q♦ K♣
+Outs utiles decision: 3♣ 4♣ 5♣ 7♣ 9♣ T♣ J♣ K♣
+
+Equity turn: 16.0%
+Equity river: 32.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 42 + 14 + 14 = 70
+Equity necesaria = 14 / 70 = 20.0%
+Turn = 8 x 2 = 16.0%
+River = 8 x 4 = 32.0%
+32.0% >= 20.0% => CALL
+
+========================================================================
+TEST 13 · Board emparejado con flush draw
+Trampa: flush draw en board emparejado, no inventar full outs raros.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♥ 9♥
+Villain: K♠ Q♠
+Board: 2♥ 2♣ J♥
+Turn: --
+River: --
+Cartas muertas: A♥ 9♥ 2♥ 2♣ J♥ K♠ Q♠
+Available deck: 45
+
+Bote: 36
+Apuesta: 12
+Ratio: 4.00:1
+Equity necesaria: 20.0%
+Mano Hero: Pareja de 2
+Mano Villain: Pareja de 2
+
+Outs positivas: 3♥ 4♥ 5♥ 6♥ 7♥ 8♥ 9♠ 9♦ 9♣ T♥ Q♥ K♥ A♠ A♦ A♣
+Outs negativas: --
+Outs limpias: 3♥ 4♥ 5♥ 6♥ 7♥ 8♥ 9♠ 9♦ 9♣ T♥ Q♥ K♥ A♠ A♦ A♣
+Outs brutas: 2♠ 2♦ 3♥ 4♥ 5♥ 6♥ 7♥ 8♥ 9♠ 9♦ 9♣ T♥ J♠ J♦ J♣ Q♥ K♥ A♠ A♦ A♣
+Outs utiles decision: 3♥ 4♥ 5♥ 6♥ 7♥ 8♥ 9♠ 9♦ 9♣ T♥ Q♥ K♥ A♠ A♦ A♣
+
+Equity turn: 30.0%
+Equity river: 60.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 36 + 12 + 12 = 60
+Equity necesaria = 12 / 60 = 20.0%
+Turn = 15 x 2 = 30.0%
+River = 15 x 4 = 60.0%
+60.0% >= 20.0% => CALL
+
+========================================================================
+TEST 14 · Doble gutshot potencial
+Trampa: straight draws múltiples sin Villain.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♦ J♣
+Villain: --
+Board: 9♠ T♥ 2♦
+Turn: --
+River: --
+Cartas muertas: 8♦ J♣ 9♠ T♥ 2♦
+Available deck: 47
+
+Bote: 32
+Apuesta: 11
+Ratio: 3.91:1
+Equity necesaria: 20.4%
+Mano Hero: Carta alta J
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 7♠ 7♥ 7♦ 7♣ Q♠ Q♥ Q♦ Q♣
+Outs brutas: 2♠ 2♥ 2♣ 7♠ 7♥ 7♦ 7♣ 8♠ 8♥ 8♣ 9♥ 9♦ 9♣ T♠ T♦ T♣ J♠ J♥ J♦ Q♠ Q♥ Q♦ Q♣
+Outs utiles decision: 7♠ 7♥ 7♦ 7♣ Q♠ Q♥ Q♦ Q♣
+
+Equity turn: 16.0%
+Equity river: 32.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 32 + 11 + 11 = 54
+Equity necesaria = 11 / 54 = 20.4%
+Turn = 8 x 2 = 16.0%
+River = 8 x 4 = 32.0%
+32.0% >= 20.4% => CALL
+
+========================================================================
+TEST 15 · Proyecto de color con una carta de Hero bloqueando
+Trampa: flush draw, pareja rival visible, outs positivas/negativas.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: K♦ 4♦
+Villain: Q♣ Q♥
+Board: A♦ 8♦ 3♠
+Turn: --
+River: --
+Cartas muertas: K♦ 4♦ A♦ 8♦ 3♠ Q♣ Q♥
+Available deck: 45
+
+Bote: 48
+Apuesta: 16
+Ratio: 4.00:1
+Equity necesaria: 20.0%
+Mano Hero: Carta alta A
+Mano Villain: Pareja de Q
+
+Outs positivas: 2♦ 3♦ 5♦ 6♦ 7♦ 9♦ T♦ J♦ Q♦
+Outs negativas: --
+Outs limpias: 2♦ 3♦ 5♦ 6♦ 7♦ 9♦ T♦ J♦ Q♦
+Outs brutas: 2♦ 3♥ 3♦ 3♣ 4♠ 4♥ 4♣ 5♦ 6♦ 7♦ 8♠ 8♥ 8♣ 9♦ T♦ J♦ Q♦ K♠ K♥ K♣ A♠ A♥ A♣
+Outs utiles decision: 2♦ 3♦ 5♦ 6♦ 7♦ 9♦ T♦ J♦ Q♦
+
+Equity turn: 18.0%
+Equity river: 36.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 48 + 16 + 16 = 80
+Equity necesaria = 16 / 80 = 20.0%
+Turn = 9 x 2 = 18.0%
+River = 9 x 4 = 36.0%
+36.0% >= 20.0% => CALL
+
+========================================================================
+TEST 16 · Gutshot en Turn
+Trampa: cálculo Turn solo x2, sin línea Turn = --.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 5♦ 9♣
+Villain: --
+Board: 6♠ 8♥ A♦
+Turn: K♣
+River: --
+Cartas muertas: 5♦ 9♣ 6♠ 8♥ A♦ K♣
+Available deck: 46
+
+Bote: 25
+Apuesta: 8
+Ratio: 4.13:1
+Equity necesaria: 19.5%
+Mano Hero: Carta alta A
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 7♠ 7♥ 7♦ 7♣
+Outs brutas: 5♠ 5♥ 5♣ 6♥ 6♦ 6♣ 7♠ 7♥ 7♦ 7♣ 8♠ 8♦ 8♣ 9♠ 9♥ 9♦ K♠ K♥ K♦ A♠ A♥ A♣
+Outs utiles decision: 7♠ 7♥ 7♦ 7♣
+
+Equity turn: N/A
+Equity river: 8.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 25 + 8 + 8 = 41
+Equity necesaria = 8 / 41 = 19.5%
+Turn = N/A
+River = 4 x 2 = 8.0%
+8.0% < 19.5% => FOLD
+
+========================================================================
+TEST 17 · OESD en Turn
+Trampa: open ended en Turn, solo equity river.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: 2♣
+River: --
+Cartas muertas: 8♣ 9♦ 6♠ 7♥ K♦ 2♣
+Available deck: 46
+
+Bote: 30
+Apuesta: 12
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Carta alta K
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs brutas: 2♠ 2♥ 2♦ 5♠ 5♥ 5♦ 5♣ 6♥ 6♦ 6♣ 7♠ 7♦ 7♣ 8♠ 8♥ 8♦ 9♠ 9♥ 9♣ T♠ T♥ T♦ T♣ K♠ K♥ K♣
+Outs utiles decision: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+
+Equity turn: N/A
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 30 + 12 + 12 = 54
+Equity necesaria = 12 / 54 = 22.2%
+Turn = N/A
+River = 8 x 2 = 16.0%
+16.0% < 22.2% => FOLD
+
+========================================================================
+TEST 18 · Flush draw en Turn
+Trampa: color pendiente en Turn, sin positivas/negativas si no hay Villain.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♣ 7♣
+Villain: --
+Board: 2♣ 9♣ J♥
+Turn: K♦
+River: --
+Cartas muertas: A♣ 7♣ 2♣ 9♣ J♥ K♦
+Available deck: 46
+
+Bote: 40
+Apuesta: 15
+Ratio: 3.67:1
+Equity necesaria: 21.4%
+Mano Hero: Carta alta A
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣ K♣
+Outs brutas: 2♠ 2♥ 2♦ 3♣ 4♣ 5♣ 6♣ 7♠ 7♥ 7♦ 8♣ 9♠ 9♥ 9♦ T♣ J♠ J♦ J♣ Q♣ K♠ K♥ K♣ A♠ A♥ A♦
+Outs utiles decision: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣ K♣
+
+Equity turn: N/A
+Equity river: 18.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 40 + 15 + 15 = 70
+Equity necesaria = 15 / 70 = 21.4%
+Turn = N/A
+River = 9 x 2 = 18.0%
+18.0% < 21.4% => FOLD
+
+========================================================================
+TEST 19 · Combo draw en Turn
+Trampa: combo draw en Turn, no duplicar outs, usar x2.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♣ 9♣
+Villain: --
+Board: 6♣ 7♣ 2♥
+Turn: K♠
+River: --
+Cartas muertas: 8♣ 9♣ 6♣ 7♣ 2♥ K♠
+Available deck: 46
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Carta alta K
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs brutas: 2♠ 2♦ 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ 6♠ 6♥ 6♦ 7♠ 7♥ 7♦ 8♠ 8♥ 8♦ 9♠ 9♥ 9♦ T♠ T♥ T♦ T♣ J♣ Q♣ K♥ K♦ K♣ A♣
+Outs utiles decision: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+
+Equity turn: N/A
+Equity river: 30.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = N/A
+River = 15 x 2 = 30.0%
+30.0% >= 22.2% => CALL
+
+========================================================================
+TEST 20 · Proyecto muerto en Turn
+Trampa: no inventar outs limpias si no hay proyecto claro.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♣ K♣
+Villain: --
+Board: 2♣ 7♦ Q♥
+Turn: 3♠
+River: --
+Cartas muertas: A♣ K♣ 2♣ 7♦ Q♥ 3♠
+Available deck: 46
+
+Bote: 35
+Apuesta: 20
+Ratio: 2.75:1
+Equity necesaria: 26.7%
+Mano Hero: Carta alta A
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: --
+Outs brutas: 2♠ 2♥ 2♦ 3♥ 3♦ 3♣ 7♠ 7♥ 7♣ Q♠ Q♦ Q♣ K♠ K♥ K♦ A♠ A♥ A♦
+Outs utiles decision: --
+
+Equity turn: N/A
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 35 + 20 + 20 = 75
+Equity necesaria = 20 / 75 = 26.7%
+Turn = N/A
+River = 0 x 2 = 0.0%
+0.0% < 26.7% => FOLD
+
+========================================================================
+TEST 21 · Color completado en Turn
+Trampa: MADE_HAND_MODE al completar flush en Turn.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: A♣ 7♣
+Villain: --
+Board: 2♣ 9♣ J♥
+Turn: K♣
+River: --
+Cartas muertas: A♣ 7♣ 2♣ 9♣ J♥ K♣
+Available deck: 46
+
+Bote: 40
+Apuesta: 20
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+Mano Hero: Color al A
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: --
+Outs brutas: --
+Outs utiles decision: --
+
+Equity turn: N/A
+Equity river: 0.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 40 + 20 + 20 = 80
+Equity necesaria = 20 / 80 = 25.0%
+Turn = N/A
+River = 0 x 2 = 0.0%
+0.0% < 25.0% => MANO HECHA
+
+========================================================================
+TEST 22 · Escalera completada en Turn
+Trampa: MADE_HAND_MODE al completar straight en Turn.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: T♣
+River: --
+Cartas muertas: 8♣ 9♦ 6♠ 7♥ K♦ T♣
+Available deck: 46
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Escalera al T
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: J♠ J♥ J♦ J♣
+Outs brutas: J♠ J♥ J♦ J♣
+Outs utiles decision: J♠ J♥ J♦ J♣
+
+Equity turn: N/A
+Equity river: 8.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = N/A
+River = 4 x 2 = 8.0%
+8.0% < 22.2% => MANO HECHA
+
+========================================================================
+TEST 23 · Set en Turn con board peligroso
+Trampa: set en Turn, full/quads como mejora secundaria.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: 9♠ 9♦
+Villain: --
+Board: 9♣ K♦ 2♥
+Turn: A♠
+River: --
+Cartas muertas: 9♠ 9♦ 9♣ K♦ 2♥ A♠
+Available deck: 46
+
+Bote: 45
+Apuesta: 20
+Ratio: 3.25:1
+Equity necesaria: 23.5%
+Mano Hero: Trio de 9
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣ A♥ A♦ A♣
+Outs brutas: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣ A♥ A♦ A♣
+Outs utiles decision: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣ A♥ A♦ A♣
+
+Equity turn: N/A
+Equity river: 20.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 45 + 20 + 20 = 85
+Equity necesaria = 20 / 85 = 23.5%
+Turn = N/A
+River = 10 x 2 = 20.0%
+20.0% < 23.5% => MANO HECHA
+
+========================================================================
+TEST 24 · Doble pareja en Turn
+Trampa: dobles hechas, no FOLD por pocas outs.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: K♠ Q♠
+Villain: --
+Board: K♦ Q♥ T♣
+Turn: 2♠
+River: --
+Cartas muertas: K♠ Q♠ K♦ Q♥ T♣ 2♠
+Available deck: 46
+
+Bote: 55
+Apuesta: 25
+Ratio: 3.20:1
+Equity necesaria: 23.8%
+Mano Hero: Doble pareja de K y Q
+Mano Villain: --
+
+Outs positivas: N/A
+Outs negativas: N/A
+Outs limpias: Q♦ Q♣ K♥ K♣
+Outs brutas: Q♦ Q♣ K♥ K♣
+Outs utiles decision: Q♦ Q♣ K♥ K♣
+
+Equity turn: N/A
+Equity river: 8.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 55 + 25 + 25 = 105
+Equity necesaria = 25 / 105 = 23.8%
+Turn = N/A
+River = 4 x 2 = 8.0%
+8.0% < 23.8% => MANO HECHA
+
+========================================================================
+TEST 25 · Combo extremo en Turn con Villain bloqueando
+Trampa: Broadway + flush draw, Q♠/Q♥ muertas, no duplicar outs.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♣ K♣
+Villain: Q♠ Q♥
+Board: J♣ T♣ 2♦
+Turn: 7♠
+River: --
+Cartas muertas: A♣ K♣ J♣ T♣ 2♦ 7♠ Q♠ Q♥
+Available deck: 44
+
+Bote: 100
+Apuesta: 40
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Carta alta A
+Mano Villain: Pareja de Q
+
+Outs positivas: 2♣ 3♣ 4♣ 5♣ 6♣ 7♣ 8♣ 9♣ Q♦ Q♣
+Outs negativas: --
+Outs limpias: 2♣ 3♣ 4♣ 5♣ 6♣ 7♣ 8♣ 9♣ Q♦ Q♣
+Outs brutas: 2♠ 2♥ 2♣ 3♣ 4♣ 5♣ 6♣ 7♥ 7♦ 7♣ 8♣ 9♣ T♠ T♥ T♦ J♠ J♥ J♦ Q♦ Q♣ K♠ K♥ K♦ A♠ A♥ A♦
+Outs utiles decision: 2♣ 3♣ 4♣ 5♣ 6♣ 7♣ 8♣ 9♣ Q♦ Q♣
+
+Equity turn: N/A
+Equity river: 20.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 100 + 40 + 40 = 180
+Equity necesaria = 40 / 180 = 22.2%
+Turn = N/A
+River = 10 x 2 = 20.0%
+20.0% < 22.2% => FOLD
+
+========================================================================
+TEST 26 · Board monotono, Hero sin color
+Trampa: no inventar flush draw si Hero no tiene picas suficientes.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: A♦ K♣
+Villain: 8♠ 8♥
+Board: 2♠ 7♠ Q♠
+Turn: --
+River: --
+Cartas muertas: A♦ K♣ 2♠ 7♠ Q♠ 8♠ 8♥
+Available deck: 45
+
+Bote: 38
+Apuesta: 13
+Ratio: 3.92:1
+Equity necesaria: 20.3%
+Mano Hero: Carta alta A
+Mano Villain: Pareja de 8
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♥ 2♦ 2♣ 7♥ 7♦ 7♣ Q♥ Q♦ Q♣ K♠ K♥ K♦ A♠ A♥ A♣
+Outs utiles decision: --
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 38 + 13 + 13 = 64
+Equity necesaria = 13 / 64 = 20.3%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 20.3% => FOLD
+
+========================================================================
+TEST 27 · Board emparejado y color completado posible en Turn
+Trampa: flush hecho en board emparejado frente a pareja alta visible.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: A♦ J♦
+Villain: K♣ K♥
+Board: 2♦ 2♠ 8♦
+Turn: Q♦
+River: --
+Cartas muertas: A♦ J♦ 2♦ 2♠ 8♦ Q♦ K♣ K♥
+Available deck: 44
+
+Bote: 64
+Apuesta: 22
+Ratio: 3.91:1
+Equity necesaria: 20.4%
+Mano Hero: Color al A
+Mano Villain: Doble pareja de K y 2
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: --
+Outs utiles decision: --
+
+Equity turn: N/A
+Equity river: 0.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 64 + 22 + 22 = 108
+Equity necesaria = 22 / 108 = 20.4%
+Turn = N/A
+River = 0 x 2 = 0.0%
+0.0% < 20.4% => MANO HECHA
+
+========================================================================
+TEST 28 · Straight draw con cartas bloqueadas por Villain
+Trampa: OESD donde algunos T están muertos por Villain.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: DRAW_MODE
+Hero: 8♠ 9♠
+Villain: T♦ T♣
+Board: 6♥ 7♦ K♣
+Turn: --
+River: --
+Cartas muertas: 8♠ 9♠ 6♥ 7♦ K♣ T♦ T♣
+Available deck: 45
+
+Bote: 44
+Apuesta: 18
+Ratio: 3.44:1
+Equity necesaria: 22.5%
+Mano Hero: Carta alta K
+Mano Villain: Pareja de T
+
+Outs positivas: 5♠ 5♥ 5♦ 5♣ T♠ T♥
+Outs negativas: --
+Outs limpias: 5♠ 5♥ 5♦ 5♣ T♠ T♥
+Outs brutas: 5♠ 5♥ 5♦ 5♣ 6♠ 6♦ 6♣ 7♠ 7♥ 7♣ 8♥ 8♦ 8♣ 9♥ 9♦ 9♣ T♠ T♥ K♠ K♥ K♦
+Outs utiles decision: 5♠ 5♥ 5♦ 5♣ T♠ T♥
+
+Equity turn: 12.0%
+Equity river: 24.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 44 + 18 + 18 = 80
+Equity necesaria = 18 / 80 = 22.5%
+Turn = 6 x 2 = 12.0%
+River = 6 x 4 = 24.0%
+24.0% >= 22.5% => CALL
+
+========================================================================
+TEST 29 · Full house posible contra board doblemente emparejado
+Trampa: full hecho con trips + pareja board; JUGADA debe iluminar bien.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: MADE_HAND_MODE
+Hero: A♠ A♦
+Villain: K♣ Q♣
+Board: A♣ K♦ K♥
+Turn: --
+River: --
+Cartas muertas: A♠ A♦ A♣ K♦ K♥ K♣ Q♣
+Available deck: 45
+
+Bote: 90
+Apuesta: 35
+Ratio: 3.57:1
+Equity necesaria: 21.9%
+Mano Hero: Full de A con K
+Mano Villain: Trio de K
+
+Outs positivas: A♥
+Outs negativas: --
+Outs limpias: A♥
+Outs brutas: A♥
+Outs utiles decision: A♥
+
+Equity turn: 2.0%
+Equity river: 4.0%
+Resultado: MANO HECHA
+
+Desarrollo:
+Bote final = 90 + 35 + 35 = 160
+Equity necesaria = 35 / 160 = 21.9%
+Turn = 1 x 2 = 2.0%
+River = 1 x 4 = 4.0%
+4.0% < 21.9% => MANO HECHA
+
+========================================================================
+TEST 30 · River completo con mano final
+Trampa: RIVER_FINAL_MODE, sin equity futura, cartas finales y comparación real.
+------------------------------------------------------------------------
+POT ODDS TRAINER
+Modo interno: RIVER_FINAL_MODE
+Hero: A♣ K♣
+Villain: Q♠ Q♥
+Board: J♣ T♣ 2♦
+Turn: 7♠
+River: Q♦
+Cartas muertas: A♣ K♣ J♣ T♣ 2♦ 7♠ Q♦ Q♠ Q♥
+Available deck: 43
+
+Bote: 100
+Apuesta: 40
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+Mano Hero: Escalera al A
+Mano Villain: Trio de Q
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: --
+Outs utiles decision: --
+
+Equity turn: N/A
+Equity river: N/A
+Resultado: N/A
+
+Desarrollo:
+Bote final = 100 + 40 + 40 = 180
+Equity necesaria = 40 / 180 = 22.2%
+Turn = N/A
+River = N/A
+N/A  22.2% => N/A
+
+FIN ? Sin errores de parseo/ejecucion.

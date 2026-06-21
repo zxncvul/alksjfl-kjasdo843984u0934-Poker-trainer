@@ -1,0 +1,659 @@
+TEST 1 · Gutshot pura
+========================================================================
+POT ODDS TRAINER
+Hero: 5♦ 9♣
+Villain: --
+Board: 6♠ 8♥ A♦
+Turn: --
+River: --
+
+Bote: 25
+Apuesta: 8
+Ratio: 4.13:1
+Equity necesaria: 19.5%
+
+Outs positivas: --
+Outs negativas: 7♠ 7♥ 7♦ 7♣
+Outs limpias: 7♠ 7♥ 7♦ 7♣
+Outs brutas: 5♠ 5♥ 5♣ 6♥ 6♦ 6♣ 7♠ 7♥ 7♦ 7♣ 8♠ 8♦ 8♣ 9♠ 9♥ 9♦ A♠ A♥ A♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 25 + 8 + 8 = 41
+Equity necesaria = 8 / 41 = 19.5%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 19.5% => FOLD
+
+TEST 2 · OESD clara
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: --
+River: --
+
+Bote: 30
+Apuesta: 10
+Ratio: 4.00:1
+Equity necesaria: 20.0%
+
+Outs positivas: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs negativas: --
+Outs limpias: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs brutas: 5♠ 5♥ 5♦ 5♣ 6♥ 6♦ 6♣ 7♠ 7♦ 7♣ 8♠ 8♥ 8♦ 9♠ 9♥ 9♣ T♠ T♥ T♦ T♣ K♠ K♥ K♣
+
+Equity turn: 16.0%
+Equity river: 32.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 30 + 10 + 10 = 50
+Equity necesaria = 10 / 50 = 20.0%
+Turn = 8 x 2 = 16.0%
+River = 8 x 4 = 32.0%
+32.0% >= 20.0% => CALL
+
+TEST 3 · Flush draw con carta muerta
+========================================================================
+POT ODDS TRAINER
+Hero: A♣ 7♣
+Villain: K♣ Q♦
+Board: 2♣ 9♣ J♥
+Turn: --
+River: --
+
+Bote: 40
+Apuesta: 15
+Ratio: 3.67:1
+Equity necesaria: 21.4%
+
+Outs positivas: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ Q♣ K♣
+Outs negativas: J♣
+Outs limpias: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣ K♣
+Outs brutas: 2♠ 2♥ 2♦ 3♣ 4♣ 5♣ 6♣ 7♠ 7♥ 7♦ 8♣ 9♠ 9♥ 9♦ T♣ J♠ J♦ J♣ Q♣ K♣ A♠ A♥ A♦
+
+Equity turn: 18.0%
+Equity river: 36.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 40 + 15 + 15 = 70
+Equity necesaria = 15 / 70 = 21.4%
+Turn = 9 x 2 = 18.0%
+River = 9 x 4 = 36.0%
+36.0% >= 21.4% => CALL
+
+TEST 4 · Combo draw
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♣
+Villain: A♦ K♦
+Board: 6♣ 7♣ 2♥
+Turn: --
+River: --
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+
+Outs positivas: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs negativas: 2♣ 3♣ 4♣ J♣ Q♣ K♣ A♣
+Outs limpias: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs brutas: 2♠ 2♦ 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ 6♠ 6♥ 6♦ 7♠ 7♥ 7♦ 8♠ 8♥ 8♦ 9♠ 9♥ 9♦ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+
+Equity turn: 30.0%
+Equity river: 60.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = 15 x 2 = 30.0%
+River = 15 x 4 = 60.0%
+60.0% >= 22.2% => CALL
+
+TEST 5 · Par débil trampa
+========================================================================
+POT ODDS TRAINER
+Hero: 4♦ 9♠
+Villain: A♣ K♣
+Board: 2♥ 7♣ Q♦
+Turn: --
+River: --
+
+Bote: 20
+Apuesta: 10
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♠ 2♦ 2♣ 4♠ 4♥ 4♣ 7♠ 7♥ 7♦ 9♥ 9♦ 9♣ Q♠ Q♥ Q♣
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 20 + 10 + 10 = 40
+Equity necesaria = 10 / 40 = 25.0%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 25.0% => FOLD
+
+TEST 6 · Overcards contra pareja
+========================================================================
+POT ODDS TRAINER
+Hero: A♠ K♦
+Villain: 8♣ 8♥
+Board: 2♣ 7♦ Q♥
+Turn: --
+River: --
+
+Bote: 35
+Apuesta: 10
+Ratio: 4.50:1
+Equity necesaria: 18.2%
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♠ 2♥ 2♦ 7♠ 7♥ 7♣ Q♠ Q♦ Q♣ K♠ K♥ K♣ A♥ A♦ A♣
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 35 + 10 + 10 = 55
+Equity necesaria = 10 / 55 = 18.2%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 18.2% => FOLD
+
+TEST 7 · Full ya hecho
+========================================================================
+POT ODDS TRAINER
+Hero: 7♠ 7♦
+Villain: A♣ K♣
+Board: 7♥ 2♣ 2♦
+Turn: --
+River: --
+
+Bote: 60
+Apuesta: 25
+Ratio: 3.40:1
+Equity necesaria: 22.7%
+
+Outs positivas: 7♣
+Outs negativas: --
+Outs limpias: 7♣
+Outs brutas: 7♣
+
+Equity turn: 2.0%
+Equity river: 4.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 60 + 25 + 25 = 110
+Equity necesaria = 25 / 110 = 22.7%
+Turn = 1 x 2 = 2.0%
+River = 1 x 4 = 4.0%
+4.0% < 22.7% => FOLD
+
+TEST 8 · Set buscando full/quads
+========================================================================
+POT ODDS TRAINER
+Hero: 9♠ 9♦
+Villain: A♥ A♣
+Board: 9♣ K♦ 2♥
+Turn: --
+River: --
+
+Bote: 45
+Apuesta: 20
+Ratio: 3.25:1
+Equity necesaria: 23.5%
+
+Outs positivas: 9♥
+Outs negativas: 2♠ 2♦ 2♣ K♠ K♥ K♣
+Outs limpias: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+Outs brutas: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣
+
+Equity turn: 14.0%
+Equity river: 28.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 45 + 20 + 20 = 85
+Equity necesaria = 20 / 85 = 23.5%
+Turn = 7 x 2 = 14.0%
+River = 7 x 4 = 28.0%
+28.0% >= 23.5% => CALL
+
+TEST 9 · Color ya completado
+========================================================================
+POT ODDS TRAINER
+Hero: A♠ 9♠
+Villain: K♥ Q♥
+Board: 2♠ 6♠ J♠
+Turn: --
+River: --
+
+Bote: 70
+Apuesta: 30
+Ratio: 3.33:1
+Equity necesaria: 23.1%
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: --
+
+Equity turn: 0.0%
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 70 + 30 + 30 = 130
+Equity necesaria = 30 / 130 = 23.1%
+Turn = 0 x 2 = 0.0%
+River = 0 x 4 = 0.0%
+0.0% < 23.1% => FOLD
+
+TEST 10 · Escalera ya hecha
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♦
+Villain: A♠ A♥
+Board: 6♠ 7♥ T♣
+Turn: --
+River: --
+
+Bote: 80
+Apuesta: 40
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+
+Outs positivas: J♠ J♥ J♦ J♣
+Outs negativas: --
+Outs limpias: J♠ J♥ J♦ J♣
+Outs brutas: J♠ J♥ J♦ J♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 80 + 40 + 40 = 160
+Equity necesaria = 40 / 160 = 25.0%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 25.0% => FOLD
+
+TEST 11 · River completo
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ J♣
+Villain: 2♠ A♣
+Board: 7♣ T♠ 6♥
+Turn: 8♥
+River: 3♥
+
+Bote: 25
+Apuesta: 8
+Ratio: 4.13:1
+Equity necesaria: 19.5%
+
+Outs positivas: --
+Outs negativas: 8♠ 8♦ 9♠ 9♥ 9♦ 9♣ J♠ J♥ J♦
+Outs limpias: 8♠ 8♦ 9♠ 9♥ 9♦ 9♣ J♠ J♥ J♦
+Outs brutas: 3♠ 3♦ 3♣ 6♠ 6♦ 6♣ 7♠ 7♥ 7♦ 8♠ 8♦ 9♠ 9♥ 9♦ 9♣ T♥ T♦ T♣ J♠ J♥ J♦
+
+Equity turn: --
+Equity river: 18.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 25 + 8 + 8 = 41
+Equity necesaria = 8 / 41 = 19.5%
+Turn = 9 x 2 = --
+River = 9 x 2 = 18.0%
+18.0% < 19.5% => FOLD
+
+TEST 12 · Doble pareja vulnerable
+========================================================================
+POT ODDS TRAINER
+Hero: K♠ Q♠
+Villain: A♦ J♦
+Board: K♦ Q♥ T♣
+Turn: --
+River: --
+
+Bote: 55
+Apuesta: 25
+Ratio: 3.20:1
+Equity necesaria: 23.8%
+
+Outs positivas: K♥ K♣
+Outs negativas: Q♦ Q♣
+Outs limpias: Q♦ Q♣ K♥ K♣
+Outs brutas: Q♦ Q♣ K♥ K♣
+
+Equity turn: 8.0%
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 55 + 25 + 25 = 105
+Equity necesaria = 25 / 105 = 23.8%
+Turn = 4 x 2 = 8.0%
+River = 4 x 4 = 16.0%
+16.0% < 23.8% => FOLD
+
+TEST 13 · Gutshot en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: 5♦ 9♣
+Villain: --
+Board: 6♠ 8♥ A♦
+Turn: K♣
+River: --
+
+Bote: 25
+Apuesta: 8
+Ratio: 4.13:1
+Equity necesaria: 19.5%
+
+Outs positivas: --
+Outs negativas: 7♠ 7♥ 7♦ 7♣
+Outs limpias: 7♠ 7♥ 7♦ 7♣
+Outs brutas: 5♠ 5♥ 5♣ 6♥ 6♦ 6♣ 7♠ 7♥ 7♦ 7♣ 8♠ 8♦ 8♣ 9♠ 9♥ 9♦ K♠ K♥ K♦ A♠ A♥ A♣
+
+Equity turn: --
+Equity river: 8.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 25 + 8 + 8 = 41
+Equity necesaria = 8 / 41 = 19.5%
+Turn = 4 x 2 = --
+River = 4 x 2 = 8.0%
+8.0% < 19.5% => FOLD
+
+TEST 14 · OESD en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: 2♣
+River: --
+
+Bote: 30
+Apuesta: 12
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+
+Outs positivas: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs negativas: --
+Outs limpias: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs brutas: 2♠ 2♥ 2♦ 5♠ 5♥ 5♦ 5♣ 6♥ 6♦ 6♣ 7♠ 7♦ 7♣ 8♠ 8♥ 8♦ 9♠ 9♥ 9♣ T♠ T♥ T♦ T♣ K♠ K♥ K♣
+
+Equity turn: --
+Equity river: 16.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 30 + 12 + 12 = 54
+Equity necesaria = 12 / 54 = 22.2%
+Turn = 8 x 2 = --
+River = 8 x 2 = 16.0%
+16.0% < 22.2% => FOLD
+
+TEST 15 · Flush Draw en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: A♣ 7♣
+Villain: --
+Board: 2♣ 9♣ J♥
+Turn: K♦
+River: --
+
+Bote: 40
+Apuesta: 15
+Ratio: 3.67:1
+Equity necesaria: 21.4%
+
+Outs positivas: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ Q♣
+Outs negativas: J♣ K♣
+Outs limpias: 3♣ 4♣ 5♣ 6♣ 8♣ T♣ J♣ Q♣ K♣
+Outs brutas: 2♠ 2♥ 2♦ 3♣ 4♣ 5♣ 6♣ 7♠ 7♥ 7♦ 8♣ 9♠ 9♥ 9♦ T♣ J♠ J♦ J♣ Q♣ K♠ K♥ K♣ A♠ A♥ A♦
+
+Equity turn: --
+Equity river: 18.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 40 + 15 + 15 = 70
+Equity necesaria = 15 / 70 = 21.4%
+Turn = 9 x 2 = --
+River = 9 x 2 = 18.0%
+18.0% < 21.4% => FOLD
+
+TEST 16 · Combo Draw en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♣
+Villain: --
+Board: 6♣ 7♣ 2♥
+Turn: K♠
+River: --
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+
+Outs positivas: 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣
+Outs negativas: 2♣ 3♣ 4♣ J♣ Q♣ K♣ A♣
+Outs limpias: 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ T♠ T♥ T♦ T♣ J♣ Q♣ K♣ A♣
+Outs brutas: 2♠ 2♦ 2♣ 3♣ 4♣ 5♠ 5♥ 5♦ 5♣ 6♠ 6♥ 6♦ 7♠ 7♥ 7♦ 8♠ 8♥ 8♦ 9♠ 9♥ 9♦ T♠ T♥ T♦ T♣ J♣ Q♣ K♥ K♦ K♣ A♣
+
+Equity turn: --
+Equity river: 30.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = 15 x 2 = --
+River = 15 x 2 = 30.0%
+30.0% >= 22.2% => CALL
+
+TEST 17 · Proyecto muerto
+========================================================================
+POT ODDS TRAINER
+Hero: A♣ K♣
+Villain: --
+Board: 2♣ 7♦ Q♥
+Turn: 3♠
+River: --
+
+Bote: 35
+Apuesta: 20
+Ratio: 2.75:1
+Equity necesaria: 26.7%
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: 2♠ 2♥ 2♦ 3♥ 3♦ 3♣ 7♠ 7♥ 7♣ Q♠ Q♦ Q♣ K♠ K♥ K♦ A♠ A♥ A♦
+
+Equity turn: --
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 35 + 20 + 20 = 75
+Equity necesaria = 20 / 75 = 26.7%
+Turn = 0 x 2 = --
+River = 0 x 2 = 0.0%
+0.0% < 26.7% => FOLD
+
+TEST 18 · Color completado en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: A♣ 7♣
+Villain: --
+Board: 2♣ 9♣ J♥
+Turn: K♣
+River: --
+
+Bote: 40
+Apuesta: 20
+Ratio: 3.00:1
+Equity necesaria: 25.0%
+
+Outs positivas: --
+Outs negativas: --
+Outs limpias: --
+Outs brutas: --
+
+Equity turn: --
+Equity river: 0.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 40 + 20 + 20 = 80
+Equity necesaria = 20 / 80 = 25.0%
+Turn = 0 x 2 = --
+River = 0 x 2 = 0.0%
+0.0% < 25.0% => FOLD
+
+TEST 19 · Escalera completada en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: 8♣ 9♦
+Villain: --
+Board: 6♠ 7♥ K♦
+Turn: T♣
+River: --
+
+Bote: 50
+Apuesta: 20
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+
+Outs positivas: --
+Outs negativas: J♠ J♥ J♦ J♣
+Outs limpias: J♠ J♥ J♦ J♣
+Outs brutas: J♠ J♥ J♦ J♣
+
+Equity turn: --
+Equity river: 8.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 50 + 20 + 20 = 90
+Equity necesaria = 20 / 90 = 22.2%
+Turn = 4 x 2 = --
+River = 4 x 2 = 8.0%
+8.0% < 22.2% => FOLD
+
+TEST 20 · Set en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: 9♠ 9♦
+Villain: --
+Board: 9♣ K♦ 2♥
+Turn: A♠
+River: --
+
+Bote: 45
+Apuesta: 20
+Ratio: 3.25:1
+Equity necesaria: 23.5%
+
+Outs positivas: 9♥
+Outs negativas: 2♠ 2♦ 2♣ K♠ K♥ K♣ A♥ A♦ A♣
+Outs limpias: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣ A♥ A♦ A♣
+Outs brutas: 2♠ 2♦ 2♣ 9♥ K♠ K♥ K♣ A♥ A♦ A♣
+
+Equity turn: --
+Equity river: 20.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 45 + 20 + 20 = 85
+Equity necesaria = 20 / 85 = 23.5%
+Turn = 10 x 2 = --
+River = 10 x 2 = 20.0%
+20.0% < 23.5% => FOLD
+
+TEST 21 · Doble pareja en Turn
+========================================================================
+POT ODDS TRAINER
+Hero: K♠ Q♠
+Villain: --
+Board: K♦ Q♥ T♣
+Turn: 2♠
+River: --
+
+Bote: 55
+Apuesta: 25
+Ratio: 3.20:1
+Equity necesaria: 23.8%
+
+Outs positivas: K♥ K♣
+Outs negativas: Q♦ Q♣
+Outs limpias: Q♦ Q♣ K♥ K♣
+Outs brutas: Q♦ Q♣ K♥ K♣
+
+Equity turn: --
+Equity river: 8.0%
+Resultado: FOLD
+
+Desarrollo:
+Bote final = 55 + 25 + 25 = 105
+Equity necesaria = 25 / 105 = 23.8%
+Turn = 4 x 2 = --
+River = 4 x 2 = 8.0%
+8.0% < 23.8% => FOLD
+
+TEST 22 · Escenario extremo
+========================================================================
+POT ODDS TRAINER
+Hero: A♣ K♣
+Villain: Q♠ Q♥
+Board: J♣ T♣ 2♦
+Turn: 7♠
+River: --
+
+Bote: 100
+Apuesta: 40
+Ratio: 3.50:1
+Equity necesaria: 22.2%
+
+Outs positivas: 3♣ 4♣ 5♣ 6♣ Q♠ Q♥ Q♦ Q♣
+Outs negativas: 2♣ 7♣ 8♣ 9♣
+Outs limpias: 2♣ 3♣ 4♣ 5♣ 6♣ 7♣ 8♣ 9♣ Q♠ Q♥ Q♦ Q♣
+Outs brutas: 2♠ 2♥ 2♣ 3♣ 4♣ 5♣ 6♣ 7♥ 7♦ 7♣ 8♣ 9♣ T♠ T♥ T♦ J♠ J♥ J♦ Q♠ Q♥ Q♦ Q♣ K♠ K♥ K♦ A♠ A♥ A♦
+
+Equity turn: --
+Equity river: 24.0%
+Resultado: CALL
+
+Desarrollo:
+Bote final = 100 + 40 + 40 = 180
+Equity necesaria = 40 / 180 = 22.2%
+Turn = 12 x 2 = --
+River = 12 x 2 = 24.0%
+24.0% >= 22.2% => CALL

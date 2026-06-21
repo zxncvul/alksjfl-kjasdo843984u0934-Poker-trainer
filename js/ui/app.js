@@ -30,7 +30,7 @@
    * 1. ESTADO DE INTERFAZ.
    * ======================================================================*/
   const ui = {
-    mode: 'study',                  // 'study' | 'training' | 'simulator'
+    mode: 'study',                  // modos principales y módulos del workspace
     trainingMode: 'range',          // 'range' | 'questions'
     source: null,
     showLabels: true,
@@ -101,6 +101,7 @@
   let rangeQuizUI = null;
   let surgicalQuizUI = null;
   let trainingUI = null;
+  let activeWorkspaceModule = null;
   const analyticsCache = new Map();
 
   /**
@@ -372,7 +373,10 @@
     hot.brushBox = null;
     hot.surgicalCheckBtn = null;
     hot.leftSummary = null;
-    renderLeftUtility(panel);
+    if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
+    const simTool = ui.mode === 'simulator' && RT.SimUI &&
+      typeof RT.SimUI.currentTool === 'function' ? RT.SimUI.currentTool() : '';
+    if (simTool !== 'duel' && simTool !== 'position' && simTool !== 'pot-odds') renderLeftUtility(panel);
     if (ui.mode === 'study') studyUI.renderPanel(panel);
     else if (ui.mode === 'training') trainingUI.renderPanel(panel);
     else renderSimulatorWorkspacePanel(panel);
@@ -390,7 +394,9 @@
     }
     return {
       study: 'Estudio',
-      simulator: 'Simulador'
+      simulator: 'Simulador',
+      'grid-trainer': 'Grid Trainer',
+      'math-trainer': 'Math Trainer'
     }[ui.mode] || ui.mode;
   }
 
@@ -555,7 +561,33 @@
   function contextId(context) { return rangeGallery.contextId(context); }
   function selectedGalleryContexts() { return rangeGallery.selectedContexts(); }
   function selectedContextIds() { return rangeGallery.selectedIds(); }
-  function renderRangeGallery() { rangeGallery.render(); }
+  function renderRangeGallery() {
+    const simTool = ui.mode === 'simulator' && RT.SimUI &&
+      typeof RT.SimUI.currentTool === 'function' ? RT.SimUI.currentTool() : '';
+    const isDuelGallery = simTool === 'duel' &&
+      RT.SimulatorDuelHandsUI && typeof RT.SimulatorDuelHandsUI.renderGallery === 'function';
+    if (isDuelGallery) {
+      RT.SimulatorDuelHandsUI.renderGallery(els.rangeGallery, simHelpers());
+      return;
+    }
+    const isPositionGallery = simTool === 'position' &&
+      RT.SimulatorPositionUI && typeof RT.SimulatorPositionUI.renderGallery === 'function';
+    if (isPositionGallery) {
+      RT.SimulatorPositionUI.renderGallery(els.rangeGallery, simHelpers());
+      return;
+    }
+    const isPotOddsGallery = simTool === 'pot-odds' &&
+      RT.SimulatorPotOddsUI && typeof RT.SimulatorPotOddsUI.renderGallery === 'function';
+    if (isPotOddsGallery) {
+      RT.SimulatorPotOddsUI.renderGallery(els.rangeGallery, simHelpers());
+      return;
+    }
+    if (els.rangeGallery && els.rangeGallery.classList) {
+      els.rangeGallery.classList.remove('sim-duel-preset-gallery');
+      els.rangeGallery.classList.remove('position-gallery');
+    }
+    rangeGallery.render();
+  }
 
   /** Caja de herramientas que app.js presta a la UI del simulador. */
   function simHelpers() {
@@ -570,8 +602,23 @@
       },
       selectedContexts: selectedContextIds(),
       source: ui.source,
-      renderAll
+      renderAll,
+      renderSimulatorTool
     };
+  }
+
+  function renderSimulatorTool() {
+    if (ui.mode !== 'simulator') {
+      renderAll();
+      return;
+    }
+    renderPanel();
+    renderStatusBar();
+    renderInsights();
+    RT.SimUI.renderStage(els.simStage, simHelpers());
+    renderRangeGallery();
+    renderActionBar();
+    scheduleDesktopPanelMetrics();
   }
 
   /* Vistas de modo: delegadas a m?dulos con contrato expl?cito. */
@@ -580,6 +627,7 @@
     const aside = els.insights;
     if (!aside) return;
     aside.innerHTML = '';
+    if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
     renderAssistant(aside);
     if (ui.mode === 'study') studyUI.renderInsights(aside);
     else if (isRangeTraining()) quizResultsUI.renderInsights(aside, 'range');
@@ -615,6 +663,26 @@
       };
     }
     if (ui.mode === 'simulator') {
+      const simTool = RT.SimUI && typeof RT.SimUI.currentTool === 'function' ? RT.SimUI.currentTool() : '';
+      const isDuelTool = simTool === 'duel';
+      if (isDuelTool) {
+        return {
+          eyebrow: 'Asistente · Showdown',
+          title: 'Lee la mesa y decide el ganador',
+          text: 'Decide Hero, Villain o Split. Los ojos revelan solo las cartas usadas por la mejor jugada.',
+          variant: 'showdown',
+          noKeys: true
+        };
+      }
+      if (simTool === 'position' && RT.SimulatorPosition) {
+        return {
+          eyebrow: 'Asistente · Position',
+          title: 'Lee la mesa y responde',
+          text: 'Usa las ciegas, el dealer y las acciones visibles. La pregunta central indica que debes localizar.',
+          variant: 'position',
+          noKeys: true
+        };
+      }
       const st = RT.Simulator.state;
       const situation = RT.Simulator.current;
       if (situation) {
@@ -650,7 +718,7 @@
 
   function renderAssistant(aside) {
     const data = assistantContent();
-    const card = el('section', 'assistant-panel');
+    const card = el('section', 'assistant-panel' + (data.variant ? ` is-${data.variant}` : ''));
     card.appendChild(el('div', 'assistant-eyebrow', data.eyebrow));
     card.appendChild(el('h2', 'assistant-title', data.title));
     card.appendChild(el('p', 'assistant-text', data.text));
@@ -662,9 +730,11 @@
     live.appendChild(hot.helpText);
     card.appendChild(live);
 
-    const keys = el('div', 'assistant-keys');
-    currentShortcuts().slice(0, 4).forEach(([key, label]) => keys.appendChild(shortcutRow(key, label)));
-    card.appendChild(keys);
+    if (!data.noKeys) {
+      const keys = el('div', 'assistant-keys');
+      currentShortcuts().slice(0, 4).forEach(([key, label]) => keys.appendChild(shortcutRow(key, label)));
+      card.appendChild(keys);
+    }
     aside.appendChild(card);
   }
 
@@ -701,6 +771,7 @@
     let label = '';
     let hands = [];
 
+    if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
     if (ui.mode === 'study') {
       if (ui.study.heatmap) {
         const heat = RT.Stats.getHandHeat(ui.study.heatmap);
@@ -764,6 +835,7 @@
     bar.innerHTML = '';
     const items = [];
 
+    if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
     if (ui.mode === 'simulator') {
       RT.SimUI.actionBarItems({ button }).forEach(b => items.push(b));
     } else if (isRangeTraining()) {
@@ -834,9 +906,32 @@
     if (ui.study.heatmap && !RT.Stats.hasData) ui.study.heatmap = null;
     renderTabs();
     const isSim = ui.mode === 'simulator';
+    const isGridTrainer = ui.mode === 'grid-trainer';
+    const isMathTrainer = ui.mode === 'math-trainer';
+    const workspaceModuleId = isGridTrainer ? 'grid-trainer'
+      : isMathTrainer ? 'math-trainer' : null;
     const simActive = isSim && ['deciding', 'feedback'].includes(RT.Simulator.state.status);
     document.body.classList.toggle('mode-simulator', isSim);
+    document.body.classList.toggle('mode-grid-trainer', isGridTrainer);
+    document.body.classList.toggle('mode-math-trainer', isMathTrainer);
     document.body.classList.toggle('sim-session-active', simActive);
+    if (workspaceModuleId) {
+      const module = RT.Modules.get(workspaceModuleId);
+      if (!module) throw new Error(`Módulo no registrado: ${workspaceModuleId}.`);
+      activeWorkspaceModule = module;
+      els.simStage.innerHTML = '';
+      module.mount({
+        grid: els.grid,
+        panel: els.panel,
+        insights: els.insights,
+        gallery: els.rangeGallery,
+        statusLabel: els.statusLabel,
+        statusStats: els.statusStats,
+        actionBar: els.actionBar
+      });
+      syncDesktopPanelMetrics();
+      return;
+    }
     RT.Grid.render(buildGridViewModel());
     renderPanel();
     renderStatusBar();
@@ -856,7 +951,7 @@
       document.documentElement.style.removeProperty('--workspace-grid-offset');
       return;
     }
-    const reference = document.body.classList.contains('sim-session-active')
+    const reference = document.body.classList.contains('mode-simulator')
       ? els.simStage
       : els.grid;
     const gridRect = reference.getBoundingClientRect();
@@ -887,11 +982,21 @@
     if (ui.mode === mode) return;
     clearTimeout(autoAdvanceTimer);
     const previousMode = ui.mode;
+    if (['grid-trainer', 'math-trainer'].includes(previousMode) && activeWorkspaceModule) {
+      activeWorkspaceModule.unmount();
+      activeWorkspaceModule = null;
+      RT.Grid.init(els.grid, onHandToggle);
+    }
     suppressEngineRender = true;
     try {
       if (previousMode === 'training' && RT.RangeQuiz.state.status !== 'idle') RT.RangeQuiz.stop();
       if (previousMode === 'training' && RT.SurgicalQuiz.state.status !== 'idle') RT.SurgicalQuiz.stop();
       if (previousMode === 'simulator' && RT.Simulator.state.status !== 'idle') RT.Simulator.stop();
+      if (previousMode === 'simulator' && RT.SimUI &&
+          typeof RT.SimUI.currentTool === 'function' &&
+          RT.SimUI.currentTool() === 'position' && RT.SimulatorPosition) {
+        RT.SimulatorPosition.stop();
+      }
     } finally {
       suppressEngineRender = false;
     }
@@ -986,14 +1091,22 @@
   /* ------------------------------ Teclado ------------------------------- */
 
   function onKeyDown(ev) {
-    // ESC siempre disponible para cerrar el modal.
-    if (ev.key === 'Escape') {
-      if (RT.Modal.isOpen) { RT.Modal.close(); ev.preventDefault(); }
+    // ESC cierra primero el modal; si no hay uno, el modulo activo puede usarlo.
+    if (ev.key === 'Escape' && RT.Modal.isOpen) {
+      RT.Modal.close();
+      ev.preventDefault();
       return;
     }
     if (RT.Modal.isOpen) return;
     const t = ev.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+
+    if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') {
+      const module = RT.Modules.get(ui.mode);
+      if (module && module.handleKey && module.handleKey(ev.key)) ev.preventDefault();
+      return;
+    }
+    if (ev.key === 'Escape') return;
 
     if (ui.mode === 'simulator') {
       const r = RT.SimUI.handleKey(ev.key);
@@ -1204,8 +1317,16 @@
       if (barCheck) barCheck.disabled = !enabled;
     });
     RT.on('rangequiz:brush', () => rangeQuizUI.renderBrushBox());
-    RT.on('sim:changed', () => {
-      if (!suppressEngineRender && ui.mode === 'simulator') renderAll();
+    RT.on('sim:changed', (change) => {
+      if (suppressEngineRender || ui.mode !== 'simulator') return;
+      if (change && change.type === 'duel:position-config') {
+        // Hero/Villain solo actualiza los selectores y sus opciones inválidas.
+        // Evita una reconstrucción completa de la mesa y la galería en cada cambio.
+        renderPanel();
+        scheduleDesktopPanelMetrics();
+        return;
+      }
+      renderAll();
     });
 
     /* ---- Cambios de configuración / favoritos ---- */

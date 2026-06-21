@@ -1,5 +1,56 @@
 # Arquitectura de Range Trainer
 
+## Math Trainer
+
+Math Trainer vive en `js/modules/math-trainer/` y se registra como
+`math-trainer` mediante `RT.Modules`. Reutiliza los cuatro hosts del workspace:
+configuración a la izquierda, ejercicio en el centro, progreso a la derecha y
+presets en la galería inferior.
+
+El módulo conserva los ocho JSON originales, las operaciones Poker Numbs y la
+generación dinámica NUMA. `math-trainer-engine.js` construye pools y controla
+sesiones; `math-trainer-generators.js` implementa NUMA/Poker;
+`math-trainer-validators.js` evalúa respuestas; `math-trainer-timer.js`
+encapsula el único intervalo; `math-trainer-stats.js` persiste bajo
+`rangeTrainer.mathTrainer.*`; y `math-trainer-ui.js` presenta toda la
+configuración avanzada y los 20 presets.
+
+No comparte estado ni estadísticas con rangos, Simulador o Grid Trainer. Los
+datasets se empaquetan como JavaScript para conservar el funcionamiento
+offline sin `fetch`, pero los JSON fuente permanecen en el módulo.
+
+## Simulador: Duelo de Jugadas
+
+`js/modules/simulator/duel-hands/` vive como submodulo del Simulador, no como
+modulo global de navegacion. `simulator-ui.js` solo alterna entre la vista
+preflop existente y `Duelo de Jugadas`; el motor, estado, estadisticas y render
+del duelo quedan encapsulados en el submodulo.
+
+La logica migrada reparte Hero, Villain y board completo sin duplicados,
+evalua la mejor mano de cinco cartas, compara Hero/Villain/Split y permite
+Reveal/Jugada resaltando exclusivamente las cartas usadas. Sus estadisticas
+usan `rangeTrainer.simulator.duelHands.*` y no alimentan `RT.Stats` del
+simulador preflop.
+
+## Grid Trainer
+
+Grid Trainer vive en `js/modules/grid-trainer/` y se registra mediante
+`RT.Modules`. Reutiliza el layout del workspace, pero reemplaza temporalmente
+la matriz, ambos paneles y la galería con vistas propias. Al desmontarse,
+`app.js` reconstruye la matriz de rangos; no comparte lógica de ejercicio con
+Estudio, Entrenamiento ni Simulador.
+
+La generación y validación están en `grid-trainer-engine.js`, la máquina de
+estados en `grid-trainer-state.js`, el render en `grid-trainer-ui.js` y la
+persistencia en `grid-trainer-stats.js`. Todas sus claves usan el prefijo
+`rangeTrainer.gridTrainer.*`.
+
+El grid del módulo es siempre la matriz canónica 13×13. Script Mode conserva
+selección, challenge, transporte y patrones; Memory Mode conserva áreas
+1–6/M, colores, cantidad, velocidad y SEC directa/inversa/combinada. Las
+categorías de dificultad y tamaño usadas por estadísticas son derivadas, no
+controles de producto añadidos.
+
 Range Trainer es una aplicación offline en vanilla HTML, CSS y JavaScript.
 No necesita compilación, framework ni dependencias en producción. Los scripts
 se encapsulan con IIFE y publican APIs dentro del namespace `RT`.
@@ -37,6 +88,9 @@ js/
     simulator/
       table-view.js
     simulator-ui.js
+  modules/
+    grid-trainer/
+    math-trainer/
 ```
 
 ## Responsabilidades
@@ -49,6 +103,8 @@ js/
 - `simulator-engine.js`: generación y evaluación del simulador, sin DOM.
 - `stats.js`: progreso, falladas y persistencia estadística.
 - `module-registry.js`: registro estable para módulos futuros.
+- `math-trainer/`: entrenamiento matemático completo, aislado del core de
+  rangos.
 
 ### Datos
 
@@ -150,14 +206,14 @@ por espacios accidentales.
 2. Crear una vista completa con `create(ctx)`.
 3. Exponer `renderPanel`, `renderInsights` y otros métodos públicos mínimos.
 4. Registrar el módulo mediante `RT.Modules.register`.
-5. Añadir un único punto de montaje en el futuro `module-host.js`.
+5. Reutilizar el punto de montaje de módulos del workspace.
 6. Mantener matriz, galería y paneles mediante servicios del workspace.
 
 Ubicación prevista:
 
-- Math Mode: `js/modules/math-mode/`
+- Math Trainer: `js/modules/math-trainer/` (implementado)
 - Sopa de Escaleras: `js/modules/sopa-escaleras/`
-- Memory Grid: `js/modules/memory-grid/`
+- Grid Trainer: `js/modules/grid-trainer/` (implementado)
 - Position Trainer: `js/modules/position-trainer/`
 
 Estos módulos no deben añadir condicionales internos a las vistas actuales.

@@ -34,13 +34,15 @@ RT.defineSpot({ id: 'VS3BET', label: 'vs 3Bet', name: 'Vs 3Bet',    dims: ['hero
 /* --------------------------------------------------------------------------
  * Catálogo de acciones (paleta global). El orden define el orden visual.
  * ------------------------------------------------------------------------*/
-RT.defineAction({ id: 'FOLD',     label: 'Fold',  color: '#2b3036' });
-RT.defineAction({ id: 'CALL',     label: 'Call',  color: '#3a7a5e' });
-RT.defineAction({ id: 'OR',       label: 'OR',    color: '#9b6a35' });
-RT.defineAction({ id: '3BET',     label: '3Bet',  color: '#9e4646' });
-RT.defineAction({ id: '4BET',     label: '4Bet',  color: '#7e3a4c' });
-RT.defineAction({ id: '5BETPLUS', label: '5Bet+', color: '#5f4378' });
-RT.defineAction({ id: 'ALLIN',    label: 'All-in',color: '#7c352c' });
+// Paleta sobria con familias inequívocas: azul para abrir, índigo para 3bet,
+// teal para call y malva/arcilla para las acciones de mayor compromiso.
+RT.defineAction({ id: 'FOLD',     label: 'Fold',  color: '#3c4651' });
+RT.defineAction({ id: 'CALL',     label: 'Call',  color: '#2f6f73' });
+RT.defineAction({ id: 'OR',       label: 'OR',    color: '#386a93' });
+RT.defineAction({ id: '3BET',     label: '3Bet',  color: '#5f6692' });
+RT.defineAction({ id: '4BET',     label: '4Bet',  color: '#826489' });
+RT.defineAction({ id: '5BETPLUS', label: '5Bet+', color: '#9a6a66' });
+RT.defineAction({ id: 'ALLIN',    label: 'All-in',color: '#a35c62' });
 
 /* ==========================================================================
  * RANGOS — fuente: D. Díaz (básicos)

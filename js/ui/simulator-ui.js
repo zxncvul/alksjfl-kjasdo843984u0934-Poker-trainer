@@ -46,6 +46,7 @@
   const ACTION_KEYS = { FOLD: '1', OR: '2', CALL: '3', '3BET': '4', '4BET': '5' };
 
   const cfg = {
+    tool: 'preflop',
     mode: 'realista',
     train: 'full',
     positions: new Set(),
@@ -132,6 +133,7 @@
     cfg.count = 10;
     cfg.handKind = 'todas';
     cfg.tableView = 'hero-bottom';
+    cfg.tool = 'preflop';
     filter = new Set();
     editingFilter = false;
     configNotice = '';
@@ -168,6 +170,7 @@
       if (d.tableView === 'fixed' || d.tableView === 'hero-bottom') {
         cfg.tableView = d.tableView;
       }
+      if (d.tool === 'preflop' || d.tool === 'duel' || d.tool === 'position' || d.tool === 'pot-odds') cfg.tool = d.tool;
       if (Array.isArray(d.positions)) {
         cfg.positions = new Set(d.positions.filter(p => RT.Hands.POSITIONS.includes(p)));
       }
@@ -193,6 +196,7 @@
       ls.setItem(CFG_KEY, JSON.stringify({
         mode: cfg.mode, train: cfg.train, threeBet: cfg.threeBet,
         count: cfg.count, handKind: cfg.handKind, tableView: cfg.tableView,
+        tool: cfg.tool,
         positions: Array.from(cfg.positions)
       }));
       ls.setItem(FILTER_KEY, JSON.stringify(Array.from(filter)));
@@ -255,24 +259,137 @@
     actionColor
   });
 
+  function renderToolChange(H) {
+    const paint = () => {
+      if (H && typeof H.renderAll === 'function') H.renderAll();
+    };
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(paint);
+      return;
+    }
+    paint();
+  }
+
+  function setSimulatorTool(tool, H) {
+    if (tool !== 'preflop' && tool !== 'duel' && tool !== 'position' && tool !== 'pot-odds') return;
+    if (cfg.tool === tool) return;
+    const previousTool = cfg.tool;
+    clearReviewTimers();
+    // Selecciona el destino antes de parar el ejercicio anterior. Los stop()
+    // emiten sim:changed de forma síncrona; así ese único repintado ya muestra
+    // la herramienta nueva, en vez de reconstruir la interfaz vieja y la nueva.
+    cfg.tool = tool;
+    saveLocal();
+    if (tool === 'pot-odds' && RT.SimulatorPotOdds && !RT.SimulatorPotOdds.state.round) {
+      RT.SimulatorPotOdds.startSession(false);
+    }
+    if (previousTool === 'preflop' && RT.Simulator.state.status !== 'idle') {
+      RT.Simulator.stop();
+      return;
+    }
+    if (previousTool === 'duel' && RT.SimulatorDuelHands) {
+      RT.SimulatorDuelHands.stop();
+      return;
+    }
+    if (previousTool === 'position' && RT.SimulatorPosition) {
+      RT.SimulatorPosition.stop(false);
+      renderToolChange(H);
+      return;
+    }
+    if (previousTool === 'pot-odds' && RT.SimulatorPotOdds) {
+      RT.SimulatorPotOdds.stop(false);
+      renderToolChange(H);
+      return;
+    }
+    // Preflop inactivo no emite al salir: en ese caso sí necesitamos pintar.
+    H.renderAll();
+  }
+
+  function renderSimulatorToolTabs(H) {
+    const tabs = H.el('div', 'sim-tool-tabs');
+    [
+      ['preflop', 'Preflop'],
+      ['duel', 'Showdown'],
+      ['position', 'Position'],
+      ['pot-odds', 'Pot Odds']
+    ].forEach(([id, label]) => {
+      tabs.appendChild(H.button(label, {
+        variant: cfg.tool === id ? 'btn-primary' : '',
+        onClick: () => setSimulatorTool(id, H)
+      }));
+    });
+    return tabs;
+  }
+
   /* ========================================================================
    * PANTALLA COMPLETA (stage)
    * ======================================================================*/
 
   function renderStage(stage, H) {
     stage.innerHTML = '';
+    if (cfg.tool === 'position' && RT.SimulatorPositionUI) {
+      RT.SimulatorPositionUI.renderStage(stage, H);
+      return;
+    }
+    if (cfg.tool === 'pot-odds' && RT.SimulatorPotOddsUI) {
+      if (RT.SimulatorPotOdds && !RT.SimulatorPotOdds.state.round) {
+        RT.SimulatorPotOdds.startSession(false);
+      }
+      RT.SimulatorPotOddsUI.renderStage(stage, H);
+      return;
+    }
+    if (cfg.tool === 'duel' && RT.SimulatorDuelHandsUI) {
+      RT.SimulatorDuelHandsUI.renderStage(stage, H);
+      return;
+    }
     const st = RT.Simulator.state;
     if (st.status === 'deciding' || st.status === 'feedback') {
       renderPlayScreen(stage, H, st);
+      return;
     }
+    const wrap = H.el('div', 'sim-play sim-play-waiting');
+    const dash = H.el('div', 'sim-dash');
+    const main = H.el('div', 'sim-main');
+    main.appendChild(tableView.renderWaitingTable(H));
+    const zone = H.el('div', 'sim-zone sim-zone-placeholder');
+    const row = H.el('div', 'sim-decisions');
+    ['Fold', 'Open Raise'].forEach((label) => {
+      const b = H.button(label, { variant: 'btn-decision' });
+      b.setAttribute('tabindex', '-1');
+      row.appendChild(b);
+    });
+    zone.appendChild(row);
+    main.appendChild(zone);
+    dash.appendChild(main);
+    wrap.appendChild(dash);
+    stage.appendChild(wrap);
   }
 
   function renderPanel(panel, H) {
+    if (cfg.tool === 'position' && RT.SimulatorPositionUI) {
+      const box = H.el('div', 'sim-config');
+      RT.SimulatorPositionUI.renderPanel(box, H, renderSimulatorToolTabs(H));
+      panel.appendChild(box);
+      return;
+    }
+    if (cfg.tool === 'duel' && RT.SimulatorDuelHandsUI) {
+      const box = H.el('div', 'sim-config');
+      RT.SimulatorDuelHandsUI.renderPanel(box, H, renderSimulatorToolTabs(H));
+      panel.appendChild(box);
+      return;
+    }
+    if (cfg.tool === 'pot-odds' && RT.SimulatorPotOddsUI) {
+      const box = H.el('div', 'sim-config');
+      RT.SimulatorPotOddsUI.renderPanel(box, H, renderSimulatorToolTabs(H));
+      panel.appendChild(box);
+      return;
+    }
     const st = RT.Simulator.state;
     if (st.status === 'idle' || st.status === 'finished') {
       renderConfigScreen(panel, H, st);
       return;
     }
+    panel.appendChild(renderSimulatorToolTabs(H));
     const card = H.el('section', 'workspace-card');
     card.appendChild(H.el('div', 'workspace-eyebrow', 'Control de sesión'));
     card.appendChild(H.statLine('Repertorios', H.selectedContexts.length || 'Todos'));
@@ -288,6 +405,7 @@
 
   function renderConfigScreen(stage, H, st) {
     const box = H.el('div', 'sim-config');
+    box.appendChild(renderSimulatorToolTabs(H));
 
     if (st.status === 'finished') renderSessionSummary(box, H, st);
 
@@ -570,6 +688,18 @@
 
   /** Columna de métricas (escritorio): todo visible, sin desplegables. */
   function renderInsights(aside, H) {
+    if (cfg.tool === 'position' && RT.SimulatorPositionUI) {
+      RT.SimulatorPositionUI.renderInsights(aside, H);
+      return;
+    }
+    if (cfg.tool === 'duel' && RT.SimulatorDuelHandsUI) {
+      RT.SimulatorDuelHandsUI.renderInsights(aside, H);
+      return;
+    }
+    if (cfg.tool === 'pot-odds' && RT.SimulatorPotOddsUI) {
+      RT.SimulatorPotOddsUI.renderInsights(aside, H);
+      return;
+    }
     const st = RT.Simulator.state;
     const active = st.status === 'deciding' || st.status === 'feedback';
 
@@ -592,7 +722,7 @@
           H.renderAll();
         }));
         body.appendChild(H.hint(
-          'La mesa sustituirá a la matriz al empezar. La biblioteca seguirá disponible debajo.'
+          'La mesa sustituye a la matriz en el simulador. La biblioteca seguirá disponible debajo.'
         ));
       }));
       return;
@@ -854,6 +984,15 @@
   /* ------------------------- Barra móvil y teclado ---------------------- */
 
   function actionBarItems(H) {
+    if (cfg.tool === 'position' && RT.SimulatorPositionUI) {
+      return RT.SimulatorPositionUI.actionBarItems(H);
+    }
+    if (cfg.tool === 'duel' && RT.SimulatorDuelHandsUI) {
+      return RT.SimulatorDuelHandsUI.actionBarItems(H);
+    }
+    if (cfg.tool === 'pot-odds' && RT.SimulatorPotOddsUI) {
+      return RT.SimulatorPotOddsUI.actionBarItems(H);
+    }
     const st = RT.Simulator.state;
     const items = [];
     if (st.status === 'deciding' && st.situation) {
@@ -894,6 +1033,15 @@
   }
 
   function handleKey(key) {
+    if (cfg.tool === 'position' && RT.SimulatorPositionUI) {
+      return RT.SimulatorPositionUI.handleKey(key);
+    }
+    if (cfg.tool === 'duel' && RT.SimulatorDuelHandsUI) {
+      return RT.SimulatorDuelHandsUI.handleKey(key);
+    }
+    if (cfg.tool === 'pot-odds' && RT.SimulatorPotOddsUI) {
+      return RT.SimulatorPotOddsUI.handleKey(key);
+    }
     const st = RT.Simulator.state;
     if (st.status === 'deciding' && /^[1-5]$/.test(key)) {
       const wanted = Object.keys(ACTION_KEYS).find(action => ACTION_KEYS[action] === key);
@@ -918,6 +1066,11 @@
   /* -------- Registro en estadísticas (una vez por decisión) ------------- */
 
   RT.on('sim:changed', () => {
+    if (cfg.tool === 'duel') {
+      clearReviewTimers();
+      lastSimStatus = RT.Simulator.state.status;
+      return;
+    }
     const st = RT.Simulator.state;
     if (st.status === 'feedback' && lastSimStatus !== 'feedback' && st.lastDecision) {
       const d = st.lastDecision;
@@ -954,7 +1107,8 @@
       resetLocalState();
       saveLocal();
     },
-    get isEditingFilter() { return editingFilter; }
+    get isEditingFilter() { return editingFilter; },
+    currentTool() { return cfg.tool; }
   };
 
 })(window.RT);

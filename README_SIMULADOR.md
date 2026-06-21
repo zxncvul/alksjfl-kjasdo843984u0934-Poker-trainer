@@ -26,6 +26,32 @@ Código: `js/core/simulator-engine.js` (motor + modelo de mesa, sin DOM),
 `js/ui/simulator/table-view.js` (mesa, cartas y línea de acción).
 `app.js` solo delega.
 
+## Herramientas internas
+
+El simulador agrupa cuatro herramientas en la misma superficie visual:
+
+- **Preflop**: ejercicios de decisión con rangos guardados.
+- **Showdown**: duelo Hero vs Villain sobre board completo.
+- **Position**: entrenamiento de posición-asiento, asiento-posición,
+  asiento-IP/OOP e IP/OOP-asiento.
+
+- **Pot Odds**: spots de Flop/Turn para decidir CALL o FOLD y abrir el mismo
+  spot en Pot Odds Lab sin duplicar su motor.
+
+Position Trainer vive aislado en `js/modules/simulator/position-trainer/`.
+Su estado, timer, estadísticas y configuración usan el prefijo
+`rangeTrainer.simulator.positionTrainer.*`. El motor admite mesas de 2 a 10
+jugadores, nomenclatura A/B y valida BTN/SB/BB, respuestas de asiento,
+posición e IP/OOP antes de presentar cada ronda.
+
+Pot Odds Simulator vive en `js/modules/simulator/pot-odds/`. Reutiliza
+`RT.PotOddsTrainerEngine` para generar cartas, validar outs limpias, calcular
+equity por outs y pot odds; por ello no tiene un segundo evaluador ni otro
+mazo. Sus estadísticas se guardan aparte de Preflop, Showdown, Position y del
+Lab. `Abrir Lab` abre una vista Lab interna del Simulador con una copia de
+Hero, board, bote y apuesta; `Volver a mesa` conserva el spot y el feedback.
+Las ediciones hechas en el Lab se mantienen locales a esa vista interna.
+
 ## 0. La mesa
 
 Mesa sobria, sin fieltro ni avatares: una superficie compacta, rectangular

@@ -21,7 +21,7 @@
 
       function handCards(hand, small) {
         const wrap = document.createElement('div');
-        wrap.className = 'sim-hand sim-hole-cards is-hero-cards' +
+        wrap.className = 'sim-hand sim-hole-cards seat-cards is-hero-cards' +
           (small ? ' sim-hand-sm' : '');
         const suited = hand.length === 3 && hand[2] === 's';
         const pair = hand.length === 2;
@@ -41,7 +41,7 @@
       }
 
       function hiddenCards(H, folded) {
-        const cards = H.el('div', 'sim-hole-cards is-hidden-cards' +
+        const cards = H.el('div', 'sim-hole-cards seat-cards is-hidden-cards' +
           (folded ? ' is-removed' : ''));
         cards.setAttribute('aria-label', folded ? 'Cartas retiradas' : 'Dos cartas ocultas');
         cards.appendChild(H.el('span', 'sim-card-back'));
@@ -55,6 +55,20 @@
         for (let i = 0; i < 5; i++) {
           board.appendChild(H.el('span', 'sim-board-card', '?'));
         }
+        return board;
+      }
+
+      function placeholderCards(H) {
+        const cards = hiddenCards(H, false);
+        cards.classList.add('sim-hole-placeholder');
+        cards.setAttribute('aria-hidden', 'true');
+        return cards;
+      }
+
+      function placeholderBoard(H) {
+        const board = hiddenBoard(H);
+        board.classList.add('sim-board-placeholder');
+        board.setAttribute('aria-hidden', 'true');
         return board;
       }
 
@@ -143,6 +157,39 @@
         return table;
       }
 
+      function renderWaitingTable(H) {
+        const table = H.el('div', 'sim-table sim-table-waiting ' +
+          (getTableView() === 'fixed' ? 'is-fixed' : 'is-hero-bottom'));
+        const felt = H.el('div', 'sim-felt');
+
+        const center = H.el('div', 'sim-center sim-waiting-center');
+        center.appendChild(H.el('div', 'sim-table-spot', 'SIMULADOR PRE-FLOP'));
+        center.appendChild(H.el('div', 'sim-waiting-title', 'Mesa preparada'));
+        center.appendChild(H.el(
+          'div',
+          'sim-waiting-copy',
+          'Configura una sesión y pulsa Empezar simulación.'
+        ));
+        center.appendChild(placeholderBoard(H));
+        felt.appendChild(center);
+
+        RT.Hands.POSITIONS.forEach((pos, index) => {
+          const seatNode = H.el('div', `sim-seat sim-seat-slot-${index} is-pending`);
+          seatNode.setAttribute('aria-label', `${pos}, asiento en espera`);
+
+          const head = H.el('div', 'sim-seat-head');
+          head.appendChild(H.el('span', 'sim-seat-pos', pos));
+          seatNode.appendChild(head);
+          seatNode.appendChild(H.el('div', 'sim-seat-stack', '100 bb'));
+          seatNode.appendChild(placeholderCards(H));
+          seatNode.appendChild(H.el('div', 'sim-seat-action', 'Espera'));
+          felt.appendChild(seatNode);
+        });
+
+        table.appendChild(felt);
+        return table;
+      }
+
       function renderActionLine(H, state) {
         const situation = state.situation;
         const line = H.el('div', 'sim-action-line');
@@ -178,7 +225,7 @@
         return line;
       }
 
-      return { handCards, renderTable, renderActionLine };
+      return { handCards, renderTable, renderWaitingTable, renderActionLine };
     }
   };
 

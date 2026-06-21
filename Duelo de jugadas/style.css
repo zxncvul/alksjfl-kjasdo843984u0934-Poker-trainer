@@ -1,0 +1,675 @@
+button {
+  all: unset;
+  font-family: inherit;
+}
+@font-face {
+  font-family: 'GohuMono';
+  src: url('./GohuFont14NerdFontMono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* === GENERAL === */
+html, body {
+  background: #000;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  overflow: hidden;
+  position: relative;
+}
+
+#scale-wrapper {
+  position: relative;
+  transform-origin: top left;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* === CONFIG PANEL === */
+#screen-config {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0px dashed #29a84769 !important;
+  border-radius: 3px !important;
+  color: #29a847 !important;
+  font-family: 'GohuMono', monospace;
+  font-size: 14px !important;
+  width: 16rem !important;
+  margin: 1rem auto 0 auto !important;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.duel-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.poker-duel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* === TEXTO DE JUGADA ARRIBA === */
+.combo-global {
+  font-size: 14px;
+  color: #29a847;
+  min-height: 2.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  transition: opacity 0.3s ease;
+  white-space: pre-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4rem;
+}
+
+.combo-global:empty::before {
+  content: "──";
+  color: #24a743;
+  display: block;
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+/* === FILAS DE CARTAS === */
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.6rem 0;
+}
+
+.hand, .board {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+/* === CARTAS === */
+.card {
+  width: 3.8rem;
+  height: 4.8rem;
+  border: 1px dashed #29a847;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  color: #29a847;
+  border-radius: 3px;
+  background: #000;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  pointer-events: auto !important;
+}
+
+.card.highlight {
+  background: #29a84725;
+  border: 1px solid #29a847;
+  z-index: 2;
+}
+
+/* === CARTA CONTENT === */
+.card-content {
+  transition: opacity 0.3s ease;
+  color: inherit;
+  pointer-events: none !important;
+}
+
+/* === HIDDEN BY MEMORY === */
+.hidden-by-memory {
+  color: transparent !important;
+}
+
+.hidden-by-memory .card-content {
+  color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* === MENÚ INFERIOR === */
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 4rem;
+  font-size: 16px;
+}
+
+/* === BOTTOM CONTROLS LAYOUT === */
+#bottom-controls {
+  margin-top: 6rem; /* ajústalo si cambia el diseño */
+  flex-direction: column;
+  gap: 3rem;
+  align-items: center;
+}
+
+/* === EYES ROW === */
+.eyes-row {
+  display: flex;
+  justify-content: center;
+  gap: 3.2rem;
+}
+
+/* === BUTTONS ROW === */
+.buttons-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* === SPACER === */
+.spacer {
+  width: 6rem;
+}
+
+/* === BOTONES === */
+.select-btn {
+  background: transparent;
+  border: 1px solid #29a847;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  font-size: 14px;
+  padding: 0.7rem 2.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  min-width: 3.9rem;
+  text-align: center;
+}
+
+.select-btn:hover {
+  background: #29a847;
+  color: #000;
+}
+
+.split-btn {
+  background: transparent;
+  border: 1px solid #29a847;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  font-size: 14px;
+  padding: 0.7rem 2rem;
+  border-radius: 3px;
+  cursor: pointer;
+  min-width: 3.9rem;
+  text-align: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.split-btn:hover {
+  background: #29a847;
+  color: #000;
+}
+
+/* === REVEAL BUTTON === */
+.reveal-btn {
+  background: transparent;
+  border: none;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  font-size: 4rem;
+  line-height: 1;
+  padding: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  
+  min-width: 3.2rem;
+  text-align: center;
+  position: relative;
+}
+
+.reveal-btn.active {
+  background: transparent;
+  color: #146c297a;
+  font-weight: bold;
+}
+
+.reveal-btn[data-side="villain"] {
+  top: 1.5rem;
+  left: 0rem !important;
+  transform: scaleX(-1);
+}
+
+.reveal-btn[data-side="hero"] {
+  top: 1.5rem;
+  left: 0rem;
+}
+
+/* === CONFIG ROWS & SELECTORS === */
+.config-row {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  padding: 0 0.rem !important;
+  box-sizing: border-box !important;
+}
+
+.config-icon {
+  font-size: 16px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  border-radius: 4px !important;
+  transition: background 0.2s !important;
+  transform: translateY(1.5px);
+}
+
+.config-icon.active {
+  background: transparent !important;
+  color: #146c29a1 !important;
+}
+
+.selector {
+  display: flex !important;
+  align-items: center !important;
+  font-family: 'GohuMono', monospace !important;
+  gap: 0.3rem !important;
+  user-select: none !important;
+}
+
+.selector-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #29a847 !important;
+  font-size: 1.8rem !important;
+  cursor: pointer !important;
+  padding: 4.4px !important;
+}
+
+.selector-value {
+  font-size: 16px;
+  min-width: 3rem !important;
+  text-align: center !important;
+  line-height: 1.2;
+  transform: translateY(1px);
+}
+
+.selector-value-random {
+  padding: 0 0rem !important;
+}
+
+.config-row-toggle {
+  justify-content: center !important;
+  gap: 0rem !important;
+  margin-left: 0.1rem !important;
+  margin-right: 0.1rem !important;
+  margin-top: 0.3rem; /* antes en JS */
+}
+
+
+
+
+
+
+
+
+.zone-toggle-wrapper {
+  display: flex;
+  gap: 0rem !important; /* ← Este es el valor que regula la separación */
+  margin-top: 0rem !important;
+}
+
+
+
+.zone-toggle-wrapper.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.toggle-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  padding: 0.2rem 1.6rem !important;
+  border: 0px solid #29a847 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  font-size: 16px !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'GohuMono', monospace !important;
+}
+
+.toggle-btn span {
+  color: #29a847;
+}
+
+.toggle-circle {
+  display: inline-block !important;
+  width: 0.4rem !important;
+  height: 0.4rem !important;
+  border: 1px solid #29a847 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  margin-right: 0rem;
+}
+
+.toggle-btn.active .toggle-circle {
+  background: #29a847 !important;
+}
+
+.selector-btn:disabled {
+  color: #146c29a9 !important;
+  opacity: 1 !important;
+  cursor: default !important;
+  transition: opacity 0.3s ease;
+}
+
+.toggle-btn.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+
+/* === BOARD CARD SPACING === */
+#duel-board .card:nth-child(3),
+#duel-board .card:nth-child(4) {
+  margin-right: 0.4rem;
+}
+
+/* === TIMEOUT MESSAGE === */
+.timeout-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 1em 2em;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+/* === UTILITIES === */
+.hidden {
+  display: none !important;
+}
+
+.game-mode-row {
+  margin-top: 0.4rem;
+  justify-content: center;
+  gap: 0rem !important;
+}
+
+.separator {
+  color: #29a847;
+  opacity: 0.5;
+  font-size: 1rem;
+  padding: 0 0.3rem;
+  align-self: center;
+}
+
+.ranking-mode .card {
+  border: 1px solid transparent !important;
+  color: #29a847 !important;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+
+
+
+
+/* Deshabilitar panel de configuración */
+.config-disabled {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Estabiliza el tamaño del tablero para todos los modos */
+/* 🔒 Fijamos la altura total del bloque de duelo */
+.poker-duel {
+  height: 12.5rem; /* Valor ajustado exacto para 3 filas de cartas */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 🔒 Cada fila tiene altura fija */
+.row {
+  height: 3.8rem; /* Igual que la altura de una carta */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ranking-board .card {
+  
+  height: 3.8rem;
+
+   width: auto;             /* No uses 2.8rem fijo */
+  min-width: 6.5rem;       /* Espacio mínimo para jugadas como “Escalera” */
+  max-width: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #29a847;
+  background: transparent;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.ranking-board {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 0rem; /* aumenta si quieres más separación */
+}
+
+
+.ranking-card {
+  min-width: 5.5rem;
+  height: 3.8rem;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #29a847;
+  background: transparent;
+  border: 1px solid #000;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Centro "U VS" */
+.vs-label {
+  color: #ff2e2e;
+  font-size: 14px;
+  font-family: 'GohuMono', monospace;
+  min-width: 4.5rem;
+  text-align: center;
+  line-height: 1;
+  margin-top: 0.2rem;
+}
+.ranking-card.error {
+  color: #ff2a2a !important;
+  
+}
+/* === IDENTIFY MODE === */
+
+
+
+.identify-buttons {
+  position: absolute;
+  top: 260%; /* debajo del board */
+   left: 50%;
+  transform: translateX(-50%); /* ✔️ centrado absoluto */
+  right: 0;
+  margin: 0 auto;
+  z-index: 99;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* columnas iguales */
+  gap: 0.9rem 0.8rem;
+  padding: 0.4rem 0.8rem;
+
+  background: transparent; /* sin fondo visible */
+  border: none;            /* ❌ sin borde */
+  border-radius: 0;
+  box-sizing: border-box;
+
+  width: 128%; /* ocupa el ancho del wrapper */
+  max-width: 50rem;;
+}
+
+
+
+#duel-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Contenedor de botones de jugadas */
+.identify-btn {
+  background: transparent;
+  border: 1px solid #29a847;
+  color: #29a847;
+  font-family: 'GohuMono', monospace;
+  font-size: 14px;
+  padding: 0.6rem 0.4rem;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  transition: background 0.2s, transform 0.2s;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+
+
+
+
+.full-row {
+  grid-column: span 3;
+  justify-self: stretch;
+  width: 100%;
+}
+
+
+
+
+.identify-btn:hover {
+  background: #29a847;
+  color: #000;
+}
+
+/* Visual para bloqueo total de botones antiguos */
+.identify-mode .reveal-btn,
+.identify-mode .select-btn,
+.identify-mode .split-btn {
+  border-color: #000 !important;
+  color: #000 !important;
+  pointer-events: none !important;
+}
+
+/* Ocultar texto residual */
+.identify-mode .reveal-btn::before,
+.identify-mode .select-btn::before,
+.identify-mode .split-btn::before {
+  content: '';
+}
+
+/* === IDENTIFY ERROR STATE === */
+.identify-mode #duel-board .card.error {
+  border: 1px solid #ff2a2a !important;
+  color: #ff2a2a !important;
+}
+
+/* Asegura que el combo-global vuelva a color normal tras modo identify */
+.combo-global {
+  color: #29a847;
+}
+
+
+/* Fade a negro al salir */
+html.fade-out::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 100ms ease-out;
+  pointer-events: none;
+}
+
+html.fade-out {
+  opacity: 1; /* no hace falta tocar el html en sí */
+}
+
+html.fade-out::before {
+  opacity: 1;
+}
+
+
+
+@media (max-width: 1000px) {
+  #scale-wrapper {
+    transform: scale(calc(100vw / 500));
+    height: calc(700px * (100vw / 500)); /* Ajusta según tu contenido */
+  }
+}
+
+
+@media (min-width: 800px) {
+  #scale-wrapper {
+    transform: none !important;
+  }
+}
+
+
+.card.error {
+  border: 1px solid #ff2a2a !important;
+  color: #ff2a2a !important;
+}

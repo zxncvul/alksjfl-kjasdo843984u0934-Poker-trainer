@@ -174,6 +174,24 @@
         }
 
         const actions = el('div', 'range-gallery-actions');
+        if (ui.mode === 'study' || ui.mode === 'training') {
+          const labelsButton = el('button', 'icon-btn range-gallery-eye-btn' +
+            (ui.showLabels ? '' : ' is-active'));
+          labelsButton.type = 'button';
+          labelsButton.title = ui.showLabels
+            ? 'Ocultar etiquetas de mano'
+            : 'Mostrar etiquetas de mano';
+          labelsButton.setAttribute('aria-label', labelsButton.title);
+          labelsButton.setAttribute('aria-pressed', String(!ui.showLabels));
+          labelsButton.innerHTML = ui.showLabels
+            ? '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.7 10.7 0 0 1 12 20C5 20 1 12 1 12a18.2 18.2 0 0 1 5.1-5.9M9.9 4.2A10.7 10.7 0 0 1 12 4c7 0 11 8 11 8a18.6 18.6 0 0 1-2.2 3.2M3 3l18 18"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+          labelsButton.addEventListener('click', () => {
+            ui.showLabels = !ui.showLabels;
+            renderAll();
+          });
+          actions.appendChild(labelsButton);
+        }
         actions.appendChild(button('Seleccionar visibles', {
           variant: 'btn-ghost range-filter-btn',
           onClick: () => {

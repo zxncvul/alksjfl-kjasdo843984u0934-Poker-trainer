@@ -1,0 +1,6 @@
+# Proyecto privado: no permitir indexación ni rastreo.
+User-agent: Googlebot
+Disallow: /
+
+User-agent: *
+Disallow: /

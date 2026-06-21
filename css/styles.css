@@ -64,6 +64,8 @@
   --header-h: 46px;
   --workspace-grid-height: min(78vh, var(--grid-max));
   --workspace-grid-offset: 31px;
+  --workspace-gallery-height: 304px;
+  --seat-card-gap: 4px;
 
   /* Ajustables desde Configuración (js/ui/settings.js) */
   --grid-max: 720px;        /* tamaño máximo de la matriz */
@@ -156,7 +158,7 @@ body {
   padding: 0 var(--sp-5);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom: 0;
 }
 
 .brand {
@@ -240,8 +242,10 @@ body {
   cursor: pointer;
   transition: color .15s, border-color .15s;
 }
-.icon-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.icon-btn:hover:not(.is-active) { color: var(--text); }
 .icon-btn.is-active { color: var(--accent-hi); border-color: var(--accent); }
+
+.header-actions #labels-toggle { display: none; }
 
 /* ----------------------------------------------------------------------------
  * 4. MATRIZ 13×13 — el elemento protagonista de la aplicación.
@@ -688,7 +692,19 @@ body {
   transition: border-color .15s, background .15s, color .15s;
 }
 
-.btn:hover:not(:disabled) { border-color: var(--text-muted); }
+.btn:hover:not(:disabled):not(.is-active) { border-color: var(--border); }
+
+.btn:focus:not(:focus-visible),
+.icon-btn:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
 
 .btn.is-active {
   background: var(--selected-bg);
@@ -1231,9 +1247,9 @@ body.is-compact .btn-decision { min-height: 42px; }
    visibles; la mesa se añade como superficie de trabajo inferior. */
 .sim-stage { display: none; }
 
-body.mode-simulator.sim-session-active #grid { display: none; }
+body.mode-simulator #grid { display: none; }
 
-body.mode-simulator.sim-session-active .grid-section > .sim-stage {
+body.mode-simulator .grid-section > .sim-stage {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1242,7 +1258,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   height: var(--workspace-grid-height);
   aspect-ratio: auto;
   min-height: 0;
-  padding: var(--sp-3);
+  padding: var(--sp-4) var(--sp-3) var(--sp-3);
   background: var(--surface);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
@@ -1355,7 +1371,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   max-width: 680px;
   margin-inline: auto;
   align-self: start;
-  padding: 55px var(--sim-seat-overhang) 62px;
+  padding: calc(var(--sim-seat-overhang) + 10px) var(--sim-seat-overhang) 62px;
 }
 
 .sim-felt {
@@ -1534,7 +1550,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 .hide-position-names .sim-seat-pos { display: none; }
 
 .sim-hand-sm {
-  gap: 4px;
+  gap: var(--seat-card-gap);
   padding: 2px 0;
 }
 .sim-hand-sm .sim-card {
@@ -1550,6 +1566,11 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--seat-card-gap);
+}
+
+.seat-cards {
+  gap: var(--seat-card-gap);
 }
 
 .sim-card-back {
@@ -1560,6 +1581,11 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 
 .sim-card-back + .sim-card-back { margin-left: 0; }
 .sim-hole-cards.is-removed { visibility: hidden; }
+.sim-hole-placeholder,
+.sim-board-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
 
 .sim-seat-action {
   font: 700 10px var(--font-mono);
@@ -1569,6 +1595,36 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 .sim-seat-action.is-decide { color: var(--accent-hi); }
 .sim-seat-action.is-aggro,
 .sim-seat-action.has-accent { color: var(--seat-accent, var(--text)); }
+
+.sim-table-waiting {
+  align-self: start;
+}
+
+.sim-table-waiting .sim-seat {
+  opacity: .86;
+}
+
+.sim-table-waiting .sim-seat-action {
+  color: var(--text-muted);
+}
+
+.sim-waiting-center {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+}
+
+.sim-waiting-title {
+  font: 800 18px var(--font-ui);
+  color: var(--text);
+  letter-spacing: .02em;
+}
+
+.sim-waiting-copy {
+  max-width: 270px;
+  font: 600 11px/1.45 var(--font-ui);
+  color: var(--text-muted);
+}
 
 .sim-seat-bet {
   position: absolute;
@@ -1754,6 +1810,11 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   overflow: hidden;
 }
 
+.sim-zone-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .sim-decisions {
   display: flex;
   gap: var(--sp-2);
@@ -1764,6 +1825,547 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 .sim-decisions > button {
   flex: 1 1 0;
   min-width: 0;
+}
+
+.sim-tool-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.sim-tool-tabs > .btn {
+  min-height: 30px;
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.sim-duel-play {
+  max-width: 680px;
+}
+
+.sim-duel-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 36px;
+  padding: 0 2px;
+}
+
+.sim-duel-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 24px;
+  border-radius: 5px;
+  color: var(--bg);
+  background: var(--accent-hi);
+  font: 800 9px var(--font-mono);
+}
+
+.sim-duel-title {
+  font: 800 11px var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.sim-duel-phase {
+  font: 700 9px var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sim-duel-tools {
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
+.sim-duel-tools .btn {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.grid-section > .sim-stage .sim-main.sim-duel-main {
+  grid-template-rows: minmax(0, 1fr) 154px;
+}
+
+.sim-duel-table .sim-felt {
+  background: color-mix(in srgb, var(--surface-2) 76%, var(--surface));
+}
+
+.sim-duel-center {
+  width: 78%;
+}
+
+.sim-duel-board {
+  margin-top: 7px;
+  margin-bottom: 8px;
+}
+
+.sim-duel-card {
+  transition: background .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.sim-duel-card.sim-card-color-blue { color: var(--accent-hi); }
+.sim-duel-card.sim-card-color-red { color: #d2756b; }
+.sim-duel-card.sim-card-color-green { color: #62a57d; }
+.sim-duel-card.sim-card-color-white { color: var(--text); }
+
+.sim-duel-card.is-used {
+  border-color: var(--accent-hi);
+  background: color-mix(in srgb, var(--accent) 23%, var(--surface));
+  color: var(--text);
+}
+
+.sim-seat-villain {
+  background: color-mix(in srgb, var(--wrong) 55%, var(--accent-hi));
+}
+
+.sim-duel-zone {
+  min-height: 154px;
+  max-height: 154px;
+}
+
+.sim-duel-feedback {
+  display: grid;
+  gap: 4px;
+  padding: 9px 11px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font: 600 12px/1.35 var(--font-ui);
+}
+
+.sim-duel-feedback strong {
+  font: 800 12px var(--font-mono);
+}
+
+.sim-duel-feedback.is-ok {
+  border-left: 3px solid var(--ok);
+}
+
+.sim-duel-feedback.is-error {
+  border-left: 3px solid var(--wrong);
+}
+
+.sim-duel-feedback-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: 5px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.sim-duel-feedback-controls .btn {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 10px;
+}
+
+.sim-duel-feedback-timer {
+  flex: 1 1 auto;
+  color: var(--text-muted);
+  font: 700 9px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sim-duel-filter-card {
+  display: grid;
+  gap: 5px;
+  padding-top: 9px;
+}
+
+.sim-duel-select-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.sim-duel-select-row .field-group {
+  min-width: 0;
+}
+
+.sim-duel-matrix {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+}
+
+.sim-duel-matrix-head,
+.sim-duel-matrix-row {
+  display: grid;
+  grid-template-columns: minmax(112px, 1fr) 30px 30px 30px 30px;
+  align-items: center;
+  gap: 2px;
+  min-height: 24px;
+}
+
+.sim-duel-matrix-head {
+  font: 800 8px var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 0 2px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sim-duel-matrix-head > span:nth-child(n+2) {
+  text-align: center;
+}
+
+.sim-duel-matrix-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 800 8.5px var(--font-mono);
+  color: var(--text);
+}
+
+.sim-duel-dot {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  justify-self: center;
+  background: color-mix(in srgb, var(--text-muted) 28%, transparent);
+  color: var(--text-muted);
+  font-size: 0;
+  cursor: pointer;
+  transition: background .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+
+.sim-duel-dot.is-active {
+  color: var(--text);
+  background: var(--accent-hi);
+}
+
+.sim-duel-dot.is-exclude {
+  background: color-mix(in srgb, var(--wrong) 30%, transparent);
+}
+
+.sim-duel-dot.is-exclude.is-active {
+  background: var(--wrong);
+}
+
+.sim-duel-dot:hover {
+  background: color-mix(in srgb, var(--accent-hi) 48%, var(--surface));
+  transform: scale(1.06);
+}
+
+.sim-duel-dot.is-exclude:hover {
+  background: color-mix(in srgb, var(--wrong) 46%, var(--surface));
+}
+
+.sim-duel-dot.is-exclude.is-active:hover {
+  background: var(--wrong);
+}
+
+.sim-duel-dot.is-active::after {
+  content: none;
+}
+
+.sim-duel-weight-readout {
+  justify-self: end;
+  color: var(--text);
+  font: 800 9px var(--font-mono);
+  text-align: right;
+}
+
+.sim-duel-filter-mode .btn-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sim-duel-filter-group {
+  display: grid;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.sim-duel-filter-title {
+  font: 800 9px var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sim-duel-filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 5px;
+  align-items: center;
+}
+
+.sim-duel-filter-row .btn {
+  min-height: 25px;
+  padding: 3px 7px;
+  justify-content: flex-start;
+  font-size: 10px;
+}
+
+.sim-duel-board-head {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sim-duel-eye {
+  position: absolute;
+  z-index: 5;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 86%, var(--accent) 14%);
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: .92;
+}
+
+.sim-duel-eye svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.sim-duel-eye svg circle { fill: currentColor; stroke: none; }
+
+.sim-duel-eye:hover,
+.sim-duel-eye.is-active {
+  color: var(--accent-hi);
+  background: color-mix(in srgb, var(--accent) 28%, var(--surface));
+  opacity: 1;
+}
+
+.sim-duel-center .sim-duel-eye {
+  position: static;
+}
+
+.sim-seat > .sim-duel-eye {
+  right: -10px;
+  bottom: -10px;
+}
+
+.sim-duel-hand-name {
+  position: absolute;
+  left: 50%;
+  bottom: -24px;
+  z-index: 6;
+  transform: translateX(-50%);
+  min-width: 92px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--surface) 84%, var(--accent) 16%);
+  font: 800 9px var(--font-mono);
+  letter-spacing: .04em;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.sim-duel-export {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  z-index: 4;
+  transform: translateX(-50%);
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  color: var(--text-muted);
+  font: 800 8px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sim-duel-export:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.sim-duel-notice {
+  margin: -4px 2px 0;
+}
+
+.sim-duel-weight-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sim-duel-weight-col {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.sim-duel-weight-col > strong {
+  color: var(--text);
+  font: 800 10px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sim-duel-weight-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px;
+  align-items: baseline;
+  color: var(--text-muted);
+  font: 700 9.5px var(--font-mono);
+}
+
+.sim-duel-weight-row b {
+  color: var(--accent-ink);
+  font: 900 10.5px var(--font-mono);
+}
+
+.sim-duel-weight-row.is-off {
+  opacity: .46;
+}
+
+.sim-duel-weight-row.is-off b {
+  color: var(--text-muted);
+}
+
+.sim-duel-split-weight {
+  grid-column: 1 / -1;
+  padding-top: 5px;
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  font: 700 9px var(--font-mono);
+  text-transform: uppercase;
+}
+
+.sim-duel-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.sim-duel-stat-tile {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 5px 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+}
+
+.sim-duel-stat-tile span {
+  overflow: hidden;
+  color: var(--text-muted);
+  font: 700 8px var(--font-mono);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sim-duel-stat-tile strong {
+  color: var(--text);
+  font: 800 12px var(--font-mono);
+}
+
+body.mode-simulator .assistant-panel:has(+ .dash-panel .sim-duel-weight-panel) {
+  padding-block: 11px;
+}
+
+body.mode-simulator .insights:has(.sim-duel-weight-panel) {
+  overflow: hidden;
+}
+
+body.mode-simulator .assistant-panel.is-showdown {
+  flex: 0 0 auto;
+}
+
+body.mode-simulator .assistant-panel.is-showdown .assistant-text {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+body.mode-simulator .assistant-panel.is-showdown .assistant-live {
+  height: 104px;
+  min-height: 104px;
+  max-height: 104px;
+}
+
+body.mode-simulator .insights:has(.sim-duel-weight-panel) .dash-panel:has(.sim-duel-weight-panel) {
+  flex: 1 1 auto;
+  min-height: 260px;
+}
+
+body.mode-simulator .insights:has(.sim-duel-weight-panel) .dash-panel:has(.sim-duel-weight-panel) .dash-body {
+  height: calc(100% - 27px);
+}
+
+body.mode-simulator .insights:has(.sim-duel-weight-panel) .sim-duel-weight-panel {
+  height: 100%;
+  align-content: start;
+  gap: 10px;
+}
+
+.sim-duel-preset-gallery .range-gallery-head {
+  margin-bottom: 10px;
+}
+
+.sim-duel-preset-note {
+  margin-left: auto;
+  color: var(--text-muted);
+  font: 700 9px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sim-duel-preset-card {
+  gap: 7px;
+}
+
+.sim-duel-preset-card.is-edited {
+  border-color: color-mix(in srgb, var(--extra) 65%, var(--border));
+  background: color-mix(in srgb, var(--extra) 8%, var(--bg));
+}
+
+.sim-duel-preset-name {
+  color: var(--text);
+  font: 800 13px var(--font-ui);
+}
+
+.sim-duel-preset-description {
+  min-height: 36px;
+  color: var(--text-muted);
+  font: 600 10px/1.35 var(--font-ui);
+}
+
+.sim-duel-preset-color,
+.sim-duel-preset-summary {
+  color: var(--accent-hi);
+  font: 700 9px/1.35 var(--font-mono);
+}
+
+.sim-duel-preset-summary {
+  margin-top: auto;
+  color: var(--text-muted);
 }
 
 .sim-key-hint {
@@ -1983,6 +2585,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 
 .range-gallery-actions {
   display: flex;
+  align-items: center;
   gap: 4px;
   margin-left: auto;
   flex: 0 0 auto;
@@ -1995,6 +2598,15 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   padding: 3px 9px;
   flex: 0 0 auto;
   font-size: 10.5px;
+}
+
+.range-gallery-eye-btn {
+  width: 29px;
+  height: 25px;
+  min-width: 29px;
+  min-height: 25px;
+  padding: 0;
+  flex: 0 0 auto;
 }
 
 .range-gallery-track {
@@ -2316,12 +2928,14 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
 
   .app-main {
     grid-template-columns: var(--panel-width) minmax(0, var(--grid-max)) var(--panel-width);
+    grid-template-rows: var(--workspace-grid-height) var(--workspace-gallery-height);
     grid-template-areas:
       "panel grid insights"
-      "gallery gallery gallery"
-      "stage stage stage";
+      "gallery gallery gallery";
     justify-content: center;
     justify-items: stretch;
+    align-items: start;
+    padding-top: 8px;
     max-width: calc(
       var(--panel-width) + var(--panel-width) + var(--grid-max) +
       var(--sp-6) + var(--sp-6)
@@ -2332,19 +2946,27 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
     position: static;
     height: var(--workspace-grid-height);
     max-height: var(--workspace-grid-height);
-    margin-top: var(--workspace-grid-offset);
+    margin-top: 0;
     scrollbar-width: thin;
   }
-  .grid-section { grid-area: grid; }
-  .range-gallery { grid-area: gallery; }
-  .sim-stage { grid-area: stage; }
+  .grid-section {
+    grid-area: grid;
+    height: var(--workspace-grid-height);
+    max-height: var(--workspace-grid-height);
+  }
+  .range-gallery {
+    grid-area: gallery;
+    height: var(--workspace-gallery-height);
+    max-height: var(--workspace-gallery-height);
+    overflow: hidden;
+  }
   .insights {
     grid-area: insights;
     display: flex;
     position: static;
     height: var(--workspace-grid-height);
     max-height: var(--workspace-grid-height);
-    margin-top: var(--workspace-grid-offset);
+    margin-top: 0;
     overflow-y: auto;
     scrollbar-width: thin;
     padding: var(--sp-3);
@@ -2476,7 +3098,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
   /* Simulador en móvil: mesa compacta arriba, decisión abajo (en la barra
      fija); el escenario nunca exige scroll para decidir. */
   .sim-play { gap: var(--sp-2); }
-  body.mode-simulator.sim-session-active .grid-section > .sim-stage {
+  body.mode-simulator .grid-section > .sim-stage {
     height: auto;
     min-height: 300px;
     padding: var(--sp-2);
@@ -2489,7 +3111,7 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
     gap: var(--sp-2);
   }
   .sim-table {
-    padding-block: 35px 48px;
+    padding-block: 42px 48px;
   }
   .sim-felt {
     --sim-felt-border: 8px;
@@ -2607,4 +3229,3489 @@ body.mode-simulator.sim-session-active .grid-section > .sim-stage {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* ----------------------------------------------------------------------------
+ * 9. GRID TRAINER
+ * --------------------------------------------------------------------------*/
+body.mode-grid-trainer #labels-toggle { display: none; }
+
+.grid-trainer-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-trainer-size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-trainer-size), minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+  max-width: min(78vh, var(--grid-max));
+  aspect-ratio: 1;
+  padding: var(--sp-2);
+  background: var(--border-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  user-select: none;
+}
+
+#grid.grid-trainer-board {
+  grid-template-columns: repeat(var(--grid-trainer-size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-trainer-size), minmax(0, 1fr));
+}
+
+.grid-trainer-cell {
+  appearance: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 72%, transparent);
+  border-radius: 2px;
+  font: 700 clamp(7px, 1vw, 12px) var(--font-mono);
+  cursor: pointer;
+  transition: background .12s, color .12s, box-shadow .12s, transform .12s;
+}
+
+.grid-trainer-cell:hover { border-color: var(--text-muted); }
+.grid-trainer-cell.is-pool { box-shadow: inset 0 0 0 1px var(--accent-hi); }
+.grid-trainer-cell.is-selected {
+  color: var(--selected-text);
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+}
+.grid-trainer-cell.is-visible {
+  color: #eef6fb;
+  background: var(--memory-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, white 25%, transparent),
+              0 0 12px color-mix(in srgb, var(--memory-color) 42%, transparent);
+  transform: scale(.96);
+}
+.grid-trainer-board.is-inverted .grid-trainer-cell:not(.is-visible) {
+  color: var(--bg);
+  background: var(--text-muted);
+}
+.grid-trainer-board.hide-labels .grid-trainer-cell { color: transparent; }
+.grid-trainer-board.hide-paint .grid-trainer-cell.is-selected:not(.is-visible) {
+  color: var(--text-muted);
+  background: var(--bg);
+  border-color: color-mix(in srgb, var(--border-soft) 72%, transparent);
+  box-shadow: none;
+}
+
+body.mode-grid-trainer.grid-trainer-focus .panel,
+body.mode-grid-trainer.grid-trainer-focus .insights,
+body.mode-grid-trainer.grid-trainer-focus .range-gallery {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  body.mode-grid-trainer.grid-trainer-focus .app-main {
+    grid-template-columns: minmax(0, var(--grid-max));
+    grid-template-areas: "grid";
+  }
+}
+
+.grid-trainer-phase {
+  padding: 2px 6px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: 700 9px var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.grid-trainer-phase.phase-correct { color: var(--ok); border-color: var(--ok); }
+.grid-trainer-phase.phase-error { color: var(--wrong); border-color: var(--wrong); }
+.grid-trainer-phase.phase-answering { color: var(--accent-hi); border-color: var(--accent); }
+
+.grid-trainer-control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.grid-trainer-control-grid .btn { min-width: 0; padding-inline: 6px; }
+.grid-trainer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.grid-trainer-select {
+  min-width: 0;
+  width: 100%;
+  height: 31px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 7px;
+  font: 600 12px var(--font-ui);
+}
+.grid-color-button { border-left: 4px solid var(--grid-color); text-transform: capitalize; }
+.grid-color-button.is-active {
+  color: var(--text);
+  border-color: var(--grid-color);
+  background: color-mix(in srgb, var(--grid-color) 20%, var(--surface-2));
+}
+
+.grid-trainer-exercise-rail {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding-bottom: 3px;
+}
+.grid-trainer-exercise {
+  flex: 0 0 180px;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.grid-trainer-exercise:hover { border-color: var(--text-muted); }
+.grid-trainer-exercise.is-active {
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+}
+.grid-trainer-exercise-label { font: 700 12px var(--font-mono); }
+.grid-trainer-exercise-help {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+@media (max-width: 1023px) {
+  body.mode-grid-trainer .grid-section { order: 1; }
+  body.mode-grid-trainer .grid-trainer-panel { order: 2; }
+  body.mode-grid-trainer .grid-trainer-insights { order: 3; display: flex; }
+  body.mode-grid-trainer .grid-trainer-gallery { order: 4; }
+  .grid-trainer-board { max-width: min(100%, 680px); margin-inline: auto; }
+}
+
+@media (max-width: 480px) {
+  .grid-trainer-cell { font-size: clamp(6px, 2.1vw, 10px); }
+  .grid-trainer-exercise { flex-basis: 150px; }
+}
+
+/* Grid Trainer fiel a grid_final (1): overrides del prototipo anterior. */
+#grid.grid-trainer-board {
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  grid-template-rows: repeat(13, minmax(0, 1fr));
+  gap: 1px;
+  max-width: var(--grid-max);
+  border-color: var(--border-soft);
+  touch-action: manipulation;
+}
+
+.grid-trainer-cell {
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 0;
+  border-radius: 1px;
+  font-size: clamp(6px, .85vw, 11px);
+  transform: none;
+}
+.grid-trainer-cell:hover { filter: brightness(1.3); }
+.grid-trainer-cell.is-pair { background: var(--surface-2); }
+.grid-trainer-cell.is-locked {
+  color: var(--bg);
+  background: var(--text-muted);
+  box-shadow: none;
+}
+.grid-trainer-cell.is-highlight {
+  color: var(--accent-ink);
+  background: var(--accent-hi);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 42%, transparent);
+}
+.grid-trainer-cell.is-wrong {
+  color: var(--accent-ink);
+  background: var(--wrong);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, white 18%, transparent);
+}
+.grid-trainer-cell.is-memory-label {
+  color: var(--accent-ink);
+  background: var(--memory-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, white 22%, transparent),
+              0 0 12px color-mix(in srgb, var(--memory-color) 42%, transparent);
+}
+.grid-trainer-board.is-inverted .grid-trainer-cell.is-locked {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.grid-trainer-board.is-inverted
+  .grid-trainer-cell:not(.is-locked):not(.is-highlight):not(.is-memory-label) {
+  color: transparent;
+  background: var(--bg);
+}
+.grid-trainer-board.memory-mode .grid-trainer-cell {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-soft) 70%, transparent);
+}
+.grid-trainer-board.memory-mode .grid-trainer-cell.is-area {
+  box-shadow: none;
+}
+.grid-trainer-board.memory-mode .grid-trainer-cell.is-outside-area {
+  opacity: .28;
+  filter: saturate(.3);
+}
+.grid-trainer-board.preset-area .grid-trainer-cell.is-outside-area {
+  opacity: .2;
+  filter: saturate(.25);
+  pointer-events: none;
+}
+.grid-trainer-board.memory-mode .grid-trainer-cell.is-outside-area:hover {
+  opacity: .58;
+  filter: saturate(.65);
+}
+.grid-trainer-board.area-movable .grid-trainer-cell {
+  cursor: crosshair;
+}
+.grid-trainer-board.manual-area .grid-trainer-cell.is-manual:not(.is-memory-label) {
+  color: var(--text-muted);
+  background: var(--bg);
+  box-shadow: none;
+  opacity: 1;
+  filter: none;
+}
+.grid-trainer-board.manual-area .grid-trainer-cell.is-manual.is-pair:not(.is-memory-label) {
+  background: var(--surface-2);
+}
+.grid-trainer-board.manual-area .grid-trainer-cell:not(.is-manual):not(.is-memory-label) {
+  opacity: .28;
+  filter: saturate(.3);
+}
+.grid-trainer-board.manual-edit .grid-trainer-cell {
+  cursor: pointer;
+}
+.grid-trainer-board.manual-edit .grid-trainer-cell:not(.is-manual):hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg));
+  opacity: .58;
+  filter: saturate(.65);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.grid-trainer-board.manual-edit .grid-trainer-cell.is-manual:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg));
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.grid-trainer-board.memory-eye .grid-trainer-cell.is-outside-area {
+  opacity: .12;
+}
+.grid-trainer-board.hide-labels .grid-trainer-cell {
+  color: transparent !important;
+}
+
+.grid-trainer-panel {
+  scrollbar-gutter: stable;
+}
+.grid-trainer-summary {
+  height: 106px;
+  min-height: 106px;
+  overflow: hidden;
+}
+.grid-trainer-summary .workspace-head {
+  min-height: 19px;
+}
+.grid-trainer-summary .grid-trainer-phase {
+  flex: 0 0 118px;
+  text-align: center;
+  white-space: nowrap;
+}
+.grid-trainer-summary .context-main {
+  min-height: 20px;
+}
+.grid-trainer-summary .context-sub {
+  min-height: 34px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.grid-trainer-phase.phase-showing { color: var(--extra); border-color: var(--extra); }
+
+.grid-trainer-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.grid-trainer-controls .grid-trainer-btn { min-width: 0; padding-inline: 6px; }
+.grid-trainer-script-tools .grid-trainer-controls {
+  grid-template-columns: repeat(6, minmax(32px, 1fr));
+  gap: 4px;
+}
+.grid-trainer-script-tools .grid-trainer-btn {
+  width: 100%;
+  min-height: 31px;
+  padding: 4px;
+}
+.grid-trainer-memory-tools .grid-trainer-controls {
+  grid-template-columns: minmax(54px, 1.35fr) repeat(4, minmax(36px, 1fr));
+  gap: 5px;
+}
+.grid-trainer-memory-tools .grid-trainer-btn {
+  width: 100%;
+  min-height: 31px;
+  padding: 4px;
+}
+
+.grid-trainer-gallery .range-gallery-filters .grid-trainer-btn {
+  min-height: 25px;
+  padding: 3px 9px;
+  flex: 0 0 auto;
+  font-size: 10.5px;
+}
+
+.grid-trainer-preset-card {
+  justify-content: flex-start;
+}
+
+.grid-trainer-preset-details {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--text-muted);
+  font: 600 10px/1.25 var(--font-mono);
+}
+
+.grid-trainer-preset-description {
+  min-height: 28px;
+  color: var(--text);
+  font: 700 11px/1.25 var(--font-ui);
+}
+
+.grid-trainer-preset-difficulty {
+  margin-top: auto;
+  color: var(--accent-hi);
+}
+
+.grid-trainer-preset-metrics {
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.grid-trainer-insights .dash-panel .stat-value {
+  max-width: 58%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grid-trainer-icon-btn svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+  margin: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.grid-trainer-sec-btn {
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+.grid-trainer-amps {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.grid-trainer-amps .btn { min-width: 0; padding: 4px 2px; }
+.grid-trainer-color { border-left: 4px solid var(--grid-trainer-color); }
+.grid-trainer-color.is-active {
+  border-color: var(--grid-trainer-color);
+  background: color-mix(in srgb, var(--grid-trainer-color) 18%, var(--surface-2));
+}
+.grid-trainer-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.grid-trainer-stepper-label {
+  color: var(--text-muted);
+  font: 700 10px var(--font-ui);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.grid-trainer-stepper-row {
+  display: grid;
+  grid-template-columns: 32px minmax(48px, 1fr) 32px;
+  gap: 5px;
+}
+.grid-trainer-stepper-row .btn { min-width: 0; padding: 3px; }
+.grid-trainer-display {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  color: var(--accent-hi);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: 700 12px var(--font-mono);
+}
+.grid-trainer-parameter-group .grid-trainer-controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-trainer-exercise-rail {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(125px, 1fr));
+  gap: 6px;
+}
+.grid-trainer-exercise {
+  min-height: 76px;
+  padding: 9px;
+  gap: 5px;
+}
+.grid-trainer-exercise-label { font-size: 11px; }
+.grid-trainer-exercise-help { font-size: 10px; }
+
+.grid-trainer-zen-exit {
+  position: fixed;
+  top: calc(var(--header-h) + 12px);
+  right: 16px;
+  z-index: 100;
+  min-height: 40px;
+  padding: 0 16px;
+  border-color: var(--accent);
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+.grid-trainer-zen-exit:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.grid-trainer-zen-exit[hidden] {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  body.mode-grid-trainer.grid-trainer-zen .app-main {
+    grid-template-columns: minmax(0, var(--grid-max));
+    grid-template-areas: "grid";
+  }
+  body.mode-grid-trainer.grid-trainer-zen .panel,
+  body.mode-grid-trainer.grid-trainer-zen .insights,
+  body.mode-grid-trainer.grid-trainer-zen .range-gallery {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .grid-trainer-exercise-rail { display: flex; }
+  .grid-trainer-exercise { flex: 0 0 145px; }
+  body.mode-grid-trainer.grid-trainer-zen .panel,
+  body.mode-grid-trainer.grid-trainer-zen .insights,
+  body.mode-grid-trainer.grid-trainer-zen .range-gallery {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-trainer-cell { font-size: clamp(5px, 1.8vw, 8px); }
+  .grid-trainer-exercise { flex-basis: 132px; }
+  .grid-trainer-zen-exit {
+    top: calc(var(--header-h) + 8px);
+    right: 8px;
+    min-height: 44px;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+ * 10. MATH TRAINER
+ * --------------------------------------------------------------------------*/
+body.mode-math-trainer #labels-toggle { display: none; }
+
+@media (min-width: 1024px) {
+  body.mode-math-trainer .app-main {
+    grid-template-columns:
+      var(--panel-width)
+      minmax(0, var(--grid-max))
+      var(--panel-width);
+    grid-template-rows: var(--workspace-grid-height) var(--workspace-gallery-height);
+    grid-template-areas:
+      "panel grid insights"
+      "gallery gallery gallery";
+    align-items: start;
+    justify-content: center;
+  }
+
+  body.mode-math-trainer .math-trainer-panel,
+  body.mode-math-trainer .math-trainer-insights,
+  body.mode-math-trainer #grid.math-trainer-stage {
+    min-width: 0;
+    width: 100%;
+    height: var(--workspace-grid-height);
+    max-height: var(--workspace-grid-height);
+    margin-top: 0;
+    box-sizing: border-box;
+  }
+
+  body.mode-math-trainer .math-trainer-panel,
+  body.mode-math-trainer .math-trainer-insights {
+    overflow-x: hidden;
+  }
+
+  body.mode-math-trainer .grid-section {
+    width: 100%;
+    max-width: var(--grid-max);
+    align-items: stretch;
+  }
+
+  body.mode-math-trainer .math-trainer-gallery {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+#grid.math-trainer-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, .72fr) minmax(230px, .72fr);
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+  gap: 0;
+  width: 100%;
+  max-width: var(--grid-max);
+  aspect-ratio: auto;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  user-select: none;
+}
+
+.math-trainer-stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 42px;
+  padding: 0 var(--sp-3);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.math-trainer-stage-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.math-trainer-console-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 22px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 3px;
+  font: 700 9px var(--font-mono);
+  letter-spacing: .06em;
+}
+
+.math-trainer-category,
+.math-trainer-live-timers {
+  font: 700 11px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.math-trainer-stage-state {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font: 600 9px var(--font-mono);
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.math-trainer-stage-state::before {
+  content: "/";
+  margin-right: var(--sp-2);
+  color: var(--border);
+}
+
+.math-trainer-live-timers {
+  display: flex;
+  gap: var(--sp-3);
+  color: var(--accent-hi);
+  white-space: nowrap;
+}
+
+.math-trainer-stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.math-trainer-console-btn {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.math-trainer-console-btn:hover:not(:disabled),
+.math-trainer-console-btn.is-active {
+  color: var(--accent-hi);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+}
+
+.math-trainer-console-btn:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.math-trainer-console-btn svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.math-trainer-exercise {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(238px, .85fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.math-trainer-exercise-pane {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, .9vw, 10px);
+  padding: clamp(10px, 1.8vw, 20px);
+  border-right: 1px solid var(--border);
+}
+
+.math-trainer-command {
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border-bottom: 0;
+}
+
+.math-trainer-command-label {
+  color: var(--text-muted);
+  font: 600 8px var(--font-mono);
+  letter-spacing: .16em;
+  padding-left: 32px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.math-trainer-question {
+  width: 100%;
+  color: var(--text);
+  font: 400 clamp(17px, 2.15vw, 24px)/1.2 var(--font-mono);
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  padding-left: 32px;
+}
+
+.math-trainer-workstation {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.math-trainer-prompt {
+  width: 100%;
+  max-width: 420px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 0;
+  border-bottom: 0;
+  border-radius: 0;
+}
+
+.math-trainer-prompt-symbol {
+  flex: 0 0 auto;
+  color: var(--accent-hi);
+  font: 600 15px/1 var(--font-mono);
+}
+
+.math-trainer-answer-display {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: calc(100% - 42px);
+  color: var(--text);
+  font: 400 clamp(14px, 1.55vw, 17px)/1 var(--font-mono);
+  letter-spacing: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.math-trainer-prompt-cursor {
+  width: 4px;
+  height: 16px;
+  flex: 0 0 auto;
+  background: var(--accent-hi);
+  opacity: .82;
+  animation: math-trainer-cursor 1.05s steps(1, end) infinite;
+}
+
+@keyframes math-trainer-cursor {
+  50% { opacity: .18; }
+}
+
+.math-trainer-flash-answer {
+  width: min(100%, 520px);
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-3);
+  color: var(--accent-ink);
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font: 700 clamp(21px, 3vw, 34px) var(--font-mono);
+  text-align: center;
+}
+
+.math-trainer-flash-answer {
+  font: 600 clamp(15px, 2vw, 21px)/1.45 var(--font-ui);
+}
+
+.math-trainer-memorize,
+.math-trainer-empty-text {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.math-trainer-empty-title {
+  font: 700 clamp(22px, 3vw, 34px) var(--font-mono);
+}
+
+.math-trainer-empty-text { max-width: 430px; margin: 0; }
+
+.math-trainer-empty {
+  grid-column: 1 / -1;
+  align-self: center;
+  justify-self: center;
+  width: min(100% - 32px, 520px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+}
+
+.math-trainer-keypad {
+  width: min(100% - 28px, 238px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(6, 44px);
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.math-trainer-keypad .btn {
+  min-width: 0;
+  min-height: 44px;
+  padding: 3px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font: 600 10px var(--font-mono);
+  letter-spacing: .04em;
+}
+
+.math-trainer-keypad .btn:hover:not(:disabled) {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  border-color: var(--border-soft);
+}
+
+.math-trainer-keypad .is-submit {
+  color: var(--accent-hi);
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg));
+  border-color: var(--border-soft);
+  font-size: 8px;
+  letter-spacing: .08em;
+}
+
+.math-trainer-keypad .is-submit:hover:not(:disabled) {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+}
+
+.math-trainer-keypad .btn.is-key-active {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 22%, var(--bg));
+  box-shadow: inset 0 -2px 0 var(--accent-hi);
+}
+
+.math-trainer-stage.phase-correct .math-trainer-prompt {
+  color: var(--ok);
+}
+
+.math-trainer-stage.phase-error .math-trainer-prompt {
+  color: var(--wrong);
+}
+
+.math-trainer-flash-actions {
+  width: min(100%, 420px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.math-trainer-telemetry {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.math-trainer-telemetry-head {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-3);
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.math-trainer-telemetry-title {
+  font: 700 9px var(--font-mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.math-trainer-telemetry-count {
+  font: 600 9px var(--font-mono);
+}
+
+.math-trainer-history {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  scrollbar-gutter: stable;
+}
+
+.math-trainer-history-empty {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-3);
+  color: var(--text-muted);
+  font: 600 10px var(--font-mono);
+  text-align: center;
+}
+
+.math-trainer-history-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--sp-2);
+  min-height: 39px;
+  padding: 7px var(--sp-3);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+  font: 600 10px var(--font-mono);
+}
+
+.math-trainer-history-row:last-child { border-bottom: 0; }
+
+.math-trainer-history-status {
+  padding-top: 1px;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+
+.math-trainer-history-detail {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--sp-3);
+}
+
+.math-trainer-history-question {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.math-trainer-history-response {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.math-trainer-history-response strong { color: var(--text); }
+.math-trainer-history-correct { color: var(--wrong); }
+.math-trainer-history-row.is-correct .math-trainer-history-status { color: var(--ok); }
+.math-trainer-history-row.is-error {
+  background: color-mix(in srgb, var(--wrong) 5%, var(--bg));
+  box-shadow: inset 2px 0 0 var(--wrong);
+}
+.math-trainer-history-row.is-error .math-trainer-history-status { color: var(--wrong); }
+
+.math-trainer-panel { scrollbar-gutter: stable; }
+.math-trainer-summary { min-height: 100px; }
+
+.math-trainer-phase {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: 700 9px var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.math-trainer-phase.phase-correct { color: var(--ok); border-color: var(--ok); }
+.math-trainer-phase.phase-error { color: var(--wrong); border-color: var(--wrong); }
+.math-trainer-phase.phase-question,
+.math-trainer-phase.phase-review { color: var(--accent-hi); border-color: var(--accent); }
+
+.math-trainer-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.math-trainer-controls .btn {
+  min-width: 0;
+  padding-inline: 5px;
+}
+
+.math-trainer-categories .math-trainer-controls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.math-trainer-categories .btn {
+  min-height: 30px;
+  padding: 4px 3px;
+  font: 600 10.5px/1.15 var(--font-ui);
+  letter-spacing: 0;
+}
+
+.math-trainer-categories .btn.is-active,
+.math-trainer-session-config .btn.is-active {
+  box-shadow: none;
+}
+
+.math-trainer-session-config .math-trainer-controls {
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(92px, .82fr);
+  gap: 6px;
+}
+
+.math-trainer-session-config > .math-trainer-controls > .math-trainer-btn {
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 7px;
+  font: 600 10.5px var(--font-ui);
+}
+
+.math-trainer-number-picker .math-trainer-controls,
+.math-trainer-outs .math-trainer-controls {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.math-trainer-number-picker .btn,
+.math-trainer-outs .btn {
+  min-height: 26px;
+  padding: 2px;
+  font: 700 10px var(--font-mono);
+}
+
+.math-trainer-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.math-trainer-stepper-label {
+  color: var(--text-muted);
+  font: 700 10px var(--font-ui);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.math-trainer-stepper-row {
+  display: grid;
+  grid-template-columns: 31px minmax(52px, 1fr) 31px;
+  gap: 4px;
+}
+
+.math-trainer-stepper-row .btn { min-width: 0; padding: 3px; }
+
+.math-trainer-display {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  color: var(--accent-hi);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: 700 11px var(--font-mono);
+}
+
+.math-trainer-preset-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font: 600 10px/1.3 var(--font-mono);
+}
+
+.math-trainer-preset-body strong {
+  min-height: 30px;
+  color: var(--text);
+  font: 700 11px/1.3 var(--font-ui);
+}
+
+.math-trainer-preset-body span:last-child { margin-top: auto; }
+
+.math-trainer-insights .stat-value {
+  max-width: 58%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.mode-math-trainer.math-trainer-focus .math-trainer-panel,
+body.mode-math-trainer.math-trainer-focus .math-trainer-insights,
+body.mode-math-trainer.math-trainer-focus .math-trainer-gallery {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  body.mode-math-trainer.math-trainer-focus .app-main {
+    grid-template-columns: minmax(0, 1120px);
+    grid-template-areas: "grid";
+    max-width: 1152px;
+  }
+
+  body.mode-math-trainer.math-trainer-focus .grid-section,
+  body.mode-math-trainer.math-trainer-focus .grid-section > * {
+    width: 100%;
+    max-width: 1120px;
+  }
+
+  body.mode-math-trainer.math-trainer-focus #grid.math-trainer-stage {
+    aspect-ratio: auto;
+    height: min(82vh, 780px);
+    max-height: none;
+    margin-top: 0;
+  }
+}
+
+body.mode-math-trainer.math-trainer-floating #grid.math-trainer-stage {
+  position: fixed;
+  z-index: 100;
+  inset: 72px auto auto 50%;
+  width: min(1000px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 96px));
+  max-width: none;
+  min-width: 520px;
+  min-height: 420px;
+  max-height: none;
+  margin-top: 0;
+  aspect-ratio: auto;
+  transform: translateX(-50%);
+  resize: both;
+  box-shadow: var(--shadow);
+}
+
+body.mode-math-trainer.math-trainer-floating #grid.math-trainer-stage[style*="left"] {
+  transform: none;
+}
+
+body.mode-math-trainer.math-trainer-floating .math-trainer-stage-top {
+  cursor: move;
+  touch-action: none;
+}
+
+@media (max-width: 1023px) {
+  body.mode-math-trainer .grid-section { order: 1; }
+  body.mode-math-trainer .math-trainer-panel { order: 2; }
+  body.mode-math-trainer .math-trainer-insights { order: 3; display: flex; }
+  body.mode-math-trainer .math-trainer-gallery { order: 4; }
+
+  #grid.math-trainer-stage {
+    max-width: min(100%, 720px);
+    margin-inline: auto;
+    aspect-ratio: auto;
+    min-height: min(680px, calc(100dvh - var(--header-h) - 28px));
+    grid-template-rows: auto minmax(330px, .72fr) minmax(230px, .72fr);
+  }
+
+  .math-trainer-exercise {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .math-trainer-exercise-pane {
+    min-height: 260px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .math-trainer-workstation { min-height: 300px; }
+
+  body.mode-math-trainer.math-trainer-floating #grid.math-trainer-stage {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 680px;
+    transform: none;
+    resize: none;
+  }
+}
+
+@media (max-width: 480px) {
+  #grid.math-trainer-stage {
+    min-height: 540px;
+    grid-template-rows: auto minmax(510px, auto) minmax(230px, .72fr);
+  }
+  .math-trainer-stage-top { padding-inline: var(--sp-2); }
+  .math-trainer-live-timers { gap: 6px; font-size: 9px; }
+  .math-trainer-console-btn { width: 27px; height: 27px; }
+  .math-trainer-stage-state { display: none; }
+  .math-trainer-exercise { padding: 0; }
+  .math-trainer-exercise-pane { min-height: 235px; padding: var(--sp-3) var(--sp-2); }
+  .math-trainer-command { padding-inline: 0; }
+  .math-trainer-question { font-size: clamp(17px, 5.2vw, 22px); }
+  .math-trainer-workstation { width: 100%; min-height: 275px; padding: var(--sp-2) 0; }
+  .math-trainer-prompt { min-height: 43px; padding-inline: 9px; }
+  .math-trainer-keypad {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(6, 42px);
+    gap: 0;
+    padding: 0;
+  }
+  .math-trainer-keypad .btn { min-height: 42px; padding: 3px; font-size: 10px; }
+  .math-trainer-keypad .is-submit { font-size: 8px; }
+  .math-trainer-history-detail { grid-template-columns: 1fr; gap: 2px; }
+  .math-trainer-history-response { text-align: left; white-space: normal; }
+  .math-trainer-categories .math-trainer-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Pot Odds Trainer: subsection scoped to Math Trainer. */
+.math-trainer-subtabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: var(--sp-2);
+  padding: 3px;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.math-trainer-subtabs .btn {
+  min-width: 0;
+  min-height: 27px;
+  padding: 3px 5px;
+  border-color: transparent;
+  font: 700 9px/1.1 var(--font-mono);
+  letter-spacing: .04em;
+}
+
+.math-trainer-subtabs .btn.is-active {
+  color: var(--accent-ink);
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+  box-shadow: none;
+}
+
+.pot-odds-trainer-panel { scrollbar-gutter: stable; }
+.pot-odds-trainer-summary { min-height: 92px; }
+
+.pot-odds-trainer-phase {
+  padding: 2px 5px;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: 700 8px var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.pot-odds-trainer-phase.phase-correct { color: var(--ok); border-color: var(--ok); }
+.pot-odds-trainer-phase.phase-error { color: var(--wrong); border-color: var(--wrong); }
+
+.pot-odds-trainer-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.pot-odds-trainer-controls .btn {
+  min-width: 0;
+  min-height: 29px;
+  padding: 3px 5px;
+  font-size: 10px;
+}
+
+.pot-odds-trainer-panel .btn:disabled,
+.pot-odds-trainer-stage .btn:disabled {
+  cursor: default;
+}
+
+#grid.pot-odds-trainer-stage {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.pot-odds-trainer-top {
+  align-items: center;
+}
+
+.pot-odds-trainer-top .math-trainer-stage-identity {
+  flex: 0 0 auto;
+}
+
+.pot-odds-trainer-top-actions {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 0;
+}
+
+.pot-odds-trainer-top-actions .btn {
+  min-height: 27px;
+  padding: 3px 9px;
+  font-size: 9px;
+}
+
+.pot-odds-trainer-top-actions .pot-odds-trainer-toolbar-btn {
+  min-width: 64px;
+}
+
+.pot-odds-trainer-top-actions .pot-odds-trainer-hint-btn {
+  min-width: 54px;
+  padding-inline: 5px;
+  font: 700 7px var(--font-mono);
+  letter-spacing: .04em;
+}
+
+.pot-odds-trainer-clock {
+  margin-left: auto;
+  color: var(--accent-hi);
+  font: 700 10px var(--font-mono);
+}
+
+.pot-odds-trainer-empty {
+  align-self: center;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.pot-odds-trainer-empty strong {
+  color: var(--text);
+  font: 500 18px var(--font-mono);
+}
+
+.pot-odds-trainer-workspace {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(220px, .78fr);
+  grid-template-rows: minmax(378px, 1.2fr) minmax(174px, .56fr) auto;
+  grid-template-areas:
+    "table response"
+    "outs outs"
+    "footer footer";
+  gap: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.pot-odds-trainer-table,
+.pot-odds-trainer-outs-pane,
+.pot-odds-trainer-response {
+  min-width: 0;
+  padding: var(--sp-3);
+}
+
+.pot-odds-trainer-table {
+  grid-area: table;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(118px, auto) minmax(0, 1fr);
+  align-items: center;
+  align-content: start;
+  gap: 8px;
+  padding: var(--sp-3);
+  border-right: 1px solid var(--border-soft);
+}
+
+.pot-odds-trainer-table > .pot-math-log {
+  margin-top: 2px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: stretch;
+}
+
+.pot-odds-trainer-table > .pot-math-log .pot-math-block:last-child {
+  grid-column: 1 / -1;
+  min-height: 34px;
+  align-content: center;
+}
+
+.pot-odds-trainer-table > .pot-math-log .pot-math-block {
+  background: transparent;
+  border-color: transparent;
+}
+
+.pot-odds-trainer-scenario {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.pot-odds-trainer-scenario span,
+.pot-odds-trainer-hand,
+.pot-technical-field {
+  min-width: 0;
+  min-height: 34px;
+  display: grid;
+  align-content: center;
+  padding: 4px 6px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font: 600 9px var(--font-mono);
+  text-align: left;
+}
+
+.pot-technical-input {
+  width: 100%;
+  min-width: 0;
+  padding: 2px 0;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font: 600 12px var(--font-mono);
+}
+
+.pot-technical-field:focus-within {
+  border-color: transparent;
+}
+
+.pot-technical-field.is-active {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.pot-odds-trainer-board,
+.pot-odds-trainer-hero {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.pot-odds-trainer-board { margin-top: 6px; }
+.pot-odds-trainer-hero { margin-top: -2px; }
+
+.pot-odds-trainer-board-cards {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pot-odds-trainer-board-cards .pot-card-row {
+  flex: 0 0 auto;
+}
+
+.pot-row-label {
+  color: var(--text-muted);
+  font: 700 8px var(--font-mono);
+  letter-spacing: .1em;
+}
+
+.pot-card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 54px;
+}
+
+.pot-card {
+  width: 42px;
+  height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: 500 12px/1 var(--font-mono);
+}
+
+.pot-card[data-suit="\2665"],
+.pot-card[data-suit="\2666"] {
+  color: color-mix(in srgb, var(--wrong) 80%, var(--text));
+}
+
+.pot-card.is-hand-hint {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: var(--selected-border);
+  box-shadow: none;
+}
+
+.pot-card.is-hand-kicker {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.pot-card.is-temporary-out {
+  background: color-mix(in srgb, var(--accent) 24%, var(--surface));
+}
+
+.pot-card.is-active-card {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-hi) 52%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.pot-lab-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 6px;
+}
+
+.pot-lab-workspace .pot-odds-trainer-table {
+  grid-template-rows: auto minmax(128px, auto) minmax(0, 1fr);
+  gap: 6px;
+  align-content: start;
+}
+
+.pot-lab-workspace .pot-odds-trainer-response {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.pot-lab-stack {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.pot-lab-later {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pot-lab-later .pot-lab-row {
+  grid-template-columns: 44px minmax(0, 1fr) 26px;
+}
+
+.pot-lab-workspace .pot-card-row {
+  min-height: 42px;
+  gap: 4px;
+}
+
+.pot-lab-workspace .pot-card {
+  width: 34px;
+  height: 42px;
+  font-size: 11px;
+}
+
+.pot-lab-spot {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-content: start;
+  padding: 2px 0;
+}
+
+.pot-lab-board-line,
+.pot-lab-player-line {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 18px;
+}
+
+.pot-lab-player-line {
+  gap: 28px;
+}
+
+.pot-lab-mini-section {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, auto) 24px;
+  grid-template-rows: auto auto;
+  align-items: end;
+  justify-content: center;
+  gap: 3px 5px;
+}
+
+.pot-lab-mini-section .pot-row-label {
+  grid-column: 1 / -1;
+  justify-self: center;
+  text-transform: lowercase;
+}
+
+.pot-lab-mini-section .pot-card-row {
+  grid-column: 1;
+  justify-content: center;
+}
+
+.pot-lab-mini-section .pot-lab-random {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+}
+
+.pot-lab-mini-flop { min-width: 142px; }
+.pot-lab-mini-hero,
+.pot-lab-mini-villain { min-width: 108px; }
+
+.pot-exercise-spot {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-content: center;
+  padding: 4px 0;
+}
+
+.pot-exercise-board-line,
+.pot-exercise-player-line {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 18px;
+}
+
+.pot-exercise-mini-section {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, auto);
+  grid-template-rows: auto auto;
+  justify-content: center;
+  gap: 3px;
+}
+
+.pot-exercise-mini-section .pot-row-label {
+  justify-self: center;
+  text-transform: lowercase;
+}
+
+.pot-exercise-mini-section .pot-card-row {
+  min-height: 42px;
+  justify-content: center;
+  gap: 4px;
+}
+
+.pot-exercise-spot .pot-card {
+  width: 34px;
+  height: 42px;
+  font-size: 11px;
+}
+
+.pot-exercise-mini-flop { min-width: 142px; }
+.pot-exercise-mini-hero { min-width: 108px; }
+
+.pot-lab-slot {
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-lab-slot.is-active {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-lab-slot.is-active .pot-card {
+  color: var(--accent-ink) !important;
+  background: color-mix(in srgb, var(--accent) 34%, var(--surface)) !important;
+  border-color: var(--accent-hi) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-hi) 70%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--accent) 34%, transparent);
+  transform: translateY(-1px);
+}
+
+.pot-lab-slot.is-active .pot-card:empty,
+.pot-lab-slot.is-active .pot-card:not([data-suit]) {
+  color: var(--accent-ink) !important;
+  background: color-mix(in srgb, var(--accent) 28%, var(--surface)) !important;
+  border-color: var(--accent-hi) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-hi) 70%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.pot-lab-random {
+  min-width: 18px;
+  width: 18px;
+  min-height: 18px;
+  height: 18px;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+.pot-lab-random:hover:not(:disabled) {
+  color: var(--accent-hi);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-zone-hidden {
+  width: 100%;
+  min-height: 48px;
+  color: var(--text-muted);
+  border-style: dashed;
+  font: 600 9px var(--font-mono);
+}
+
+.pot-odds-trainer-outs-pane {
+  grid-area: outs;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+.pot-odds-trainer-out-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  min-height: 22px;
+}
+
+.pot-odds-trainer-out-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.pot-odds-trainer-out-actions .btn {
+  min-height: 21px;
+  padding: 1px 6px;
+  font-size: 7px;
+}
+
+.pot-odds-trainer-out-grid {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(13, minmax(34px, 1fr));
+  grid-template-rows: repeat(4, auto);
+  gap: 2px;
+  align-content: start;
+  margin-top: 0;
+}
+
+.pot-odds-trainer-outs-pane .pot-odds-trainer-out-grid {
+  flex: 1 1 auto;
+  align-content: center;
+  overflow: hidden;
+}
+
+.pot-out-cell {
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.pot-out-cell .pot-card {
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+  gap: 1px;
+  background: transparent;
+  border: 0;
+  font-size: 9px;
+}
+
+.pot-out-cell:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-out-cell.is-positive {
+  color: var(--accent-ink);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-out-cell.is-negative {
+  color: color-mix(in srgb, var(--wrong) 80%, var(--text));
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-out-cell.is-positive .pot-card {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.pot-out-cell.is-negative .pot-card {
+  color: color-mix(in srgb, var(--wrong) 84%, var(--text));
+  font-weight: 700;
+}
+
+.pot-out-cell.is-out-hint {
+  color: var(--accent-ink);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-out-cell:is(.is-out-hint, .is-out-selected, .is-out-correct, .is-out-error, .is-out-missed, .is-clicked-out) .pot-card {
+  width: 26px;
+  height: 26px;
+  margin: auto;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.pot-out-cell.is-out-selected {
+  background: transparent;
+}
+
+.pot-out-cell.is-out-correct {
+  background: transparent;
+}
+
+.pot-out-cell.is-out-error {
+  background: transparent;
+}
+
+.pot-out-cell.is-out-error .pot-card {
+  color: color-mix(in srgb, var(--wrong) 84%, var(--text));
+  border-color: color-mix(in srgb, var(--wrong) 28%, transparent);
+  background: color-mix(in srgb, var(--wrong) 8%, transparent);
+}
+
+.pot-out-cell.is-out-missed {
+  background: transparent;
+  opacity: .78;
+}
+
+.pot-out-cell.is-clicked-out {
+  background: transparent;
+  box-shadow: none;
+}
+
+.pot-out-cell.is-clicked-out .pot-card {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+}
+
+.pot-out-cell.is-used { opacity: .26; }
+
+.pot-reveal-used {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.pot-odds-trainer-response {
+  grid-area: response;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--bg);
+}
+
+.pot-odds-trainer-response .pot-odds-trainer-keypad {
+  align-self: stretch;
+}
+
+.pot-lab-workspace .pot-odds-trainer-keypad {
+  width: min(100%, 340px);
+  min-height: 280px;
+  align-self: center;
+}
+
+.pot-lab-workspace .pot-odds-trainer-keypad .btn {
+  min-height: 46px;
+}
+
+.pot-lab-analysis {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.pot-lab-brief {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: var(--sp-2);
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--surface) 45%, transparent);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font: 600 10px/1.55 var(--font-mono);
+}
+
+.pot-math-log {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  align-content: start;
+  color: var(--text-muted);
+  font: 600 9px/1.35 var(--font-mono);
+}
+
+.pot-math-block {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 5px 8px;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.pot-result-line {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.pot-math-block strong {
+  color: var(--accent-ink);
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+
+.pot-odds-trainer-outs-pane > .pot-math-log {
+  flex: 0 0 auto;
+  margin-top: 5px;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+.pot-odds-trainer-outs-pane > .pot-math-log .pot-math-block {
+  background: transparent;
+}
+
+.pot-odds-trainer-equities {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.pot-odds-trainer-response-hint {
+  align-self: center;
+  color: var(--text-muted);
+  font: 600 10px/1.5 var(--font-mono);
+}
+
+.pot-equity-field {
+  min-width: 0;
+  min-height: 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 7px;
+  text-align: left;
+}
+
+.pot-equity-label {
+  overflow: hidden;
+  color: var(--text-muted);
+  font: 600 8px var(--font-mono);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pot-equity-value {
+  color: var(--text);
+  font: 500 13px var(--font-mono);
+}
+
+.pot-odds-trainer-keypad {
+  grid-column: 1;
+  grid-row: 2;
+  width: min(100%, 270px);
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(38px, 1fr));
+  gap: 0;
+  overflow: hidden;
+}
+
+.pot-odds-trainer-keypad .btn {
+  min-width: 0;
+  min-height: 38px;
+  padding: 3px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  border-color: transparent;
+  font: 600 9px var(--font-mono);
+}
+
+.pot-odds-trainer-keypad .btn:hover:not(:disabled) {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pot-odds-trainer-keypad .is-submit {
+  grid-column: 1 / -1;
+  color: var(--accent-hi);
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+}
+
+.pot-odds-trainer-decisions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(72px, 1fr));
+  gap: 4px;
+}
+
+.pot-odds-trainer-response-decisions {
+  width: 100%;
+}
+
+.pot-odds-trainer-decisions .btn {
+  min-height: 30px;
+  padding: 4px 8px;
+  font-size: 9px;
+}
+
+.pot-odds-trainer-table-tools {
+  display: grid;
+  gap: 5px;
+}
+
+.pot-odds-trainer-hand {
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.pot-odds-trainer-check {
+  width: 100%;
+  min-width: 96px;
+  min-height: 34px;
+  padding: 4px 12px;
+}
+
+.pot-odds-trainer-footer {
+  grid-area: footer;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 4px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border-top: 1px solid var(--border-soft);
+}
+
+.pot-odds-trainer-footer > * {
+  min-height: 34px;
+}
+
+.pot-odds-trainer-footer .pot-odds-trainer-decisions {
+  gap: 4px;
+}
+
+.pot-lab-workspace .pot-odds-trainer-footer { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.pot-odds-trainer-response > .pot-odds-trainer-btn:last-child { min-width: 88px; }
+.pot-odds-trainer-mode-track { gap: var(--sp-2); }
+
+.pot-odds-trainer-mode-card {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+
+.pot-mode-description,
+.pot-mode-meta {
+  color: var(--text-muted);
+  font: 600 9px/1.35 var(--font-mono);
+}
+
+.pot-mode-meta { margin-top: auto; }
+
+.pot-odds-trainer-gallery-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 25px;
+}
+
+/* Position Trainer integrado en el Simulador */
+.position-trainer-play {
+  max-width: 680px;
+}
+
+.grid-section > .sim-stage .sim-main.position-main {
+  grid-template-rows: minmax(0, 1fr) minmax(58px, auto);
+}
+
+.position-table {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--sim-seat-overhang) + 12px) var(--sim-seat-overhang) 34px;
+}
+
+.position-felt {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+}
+
+.position-center {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: min(64%, 390px);
+}
+
+.position-question {
+  max-width: 300px;
+  color: var(--text);
+  font: 800 clamp(18px, 2.2vw, 26px)/1.1 var(--font-mono);
+  text-align: center;
+  letter-spacing: .01em;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent-hi) 14%, transparent);
+}
+
+.position-countdown {
+  min-height: 15px;
+  color: var(--accent-hi);
+  font: 800 11px/1 var(--font-mono);
+  letter-spacing: .08em;
+}
+
+.position-board-label {
+  color: var(--text-muted);
+  font: 800 9px/1 var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.position-board {
+  margin: 0;
+  gap: 5px;
+}
+
+.position-seat {
+  width: 104px;
+  height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 8px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-2) 94%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--border) 88%, var(--text-muted));
+  transition: border-color .14s ease, background .14s ease, opacity .14s ease;
+}
+
+.position-seat:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  background: color-mix(in srgb, var(--surface-2) 76%, var(--accent) 8%);
+}
+
+.position-seat.is-answerable {
+  border-color: color-mix(in srgb, var(--accent-hi) 52%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hi) 28%, transparent),
+    0 9px 22px rgba(0, 0, 0, .18);
+}
+
+.position-seat.is-inactive,
+.position-seat.is-folded {
+  opacity: .34;
+}
+
+.position-seat.is-target {
+  border-color: color-mix(in srgb, var(--accent-hi) 88%, var(--border));
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-2));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hi) 70%, transparent),
+    0 0 24px color-mix(in srgb, var(--accent-hi) 22%, transparent),
+    0 9px 22px rgba(0, 0, 0, .22);
+}
+
+.position-seat.is-correct {
+  border-color: color-mix(in srgb, var(--ok) 65%, var(--border));
+  background: color-mix(in srgb, var(--ok) 12%, var(--surface-2));
+}
+
+.position-seat.is-error {
+  border-color: color-mix(in srgb, var(--bad) 65%, var(--border));
+  background: color-mix(in srgb, var(--bad) 12%, var(--surface-2));
+}
+
+.position-seat-dot {
+  min-width: 48px;
+  min-height: 26px;
+  display: grid;
+  place-items: center;
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font: 900 12px var(--font-mono);
+}
+
+.position-seat-dot:empty {
+  min-height: 0;
+  max-height: 0;
+  border-color: transparent;
+  background: transparent;
+  opacity: 0;
+}
+
+.sim-table.position-table.is-fixed .position-seat {
+  left: var(--position-seat-left, 50%);
+  top: var(--position-seat-top, 50%);
+}
+
+.position-table.is-tenmax .sim-seat {
+  width: 82px;
+  height: 88px;
+  padding: 5px 6px;
+}
+
+.position-table.is-tenmax .position-seat-cards,
+.position-table.is-tenmax .position-seat-cards .sim-card-back {
+  min-height: 36px;
+  height: 36px;
+}
+
+.position-table.is-tenmax .position-seat-cards .sim-card-back {
+  width: 28px;
+  border-radius: 6px;
+}
+
+.position-table .sim-seat-pos,
+.position-table .sim-seat-stack,
+.position-table .sim-seat-action {
+  min-height: 11px;
+}
+
+.position-table .sim-seat-pos,
+.position-table .sim-seat-action {
+  color: var(--text-muted);
+}
+
+.position-seat-cards {
+  min-height: 46px;
+}
+
+.sim-table.position-table.is-fixed .position-seat-edge-top > .sim-seat-marker.is-blind {
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+}
+
+.sim-table.position-table.is-fixed .position-seat-edge-bottom > .sim-seat-marker.is-blind {
+  left: 50%;
+  top: -14px;
+  transform: translateX(-50%);
+}
+
+.sim-table.position-table.is-fixed .position-seat-edge-right > .sim-seat-marker.is-blind {
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sim-table.position-table.is-fixed .position-seat-edge-left > .sim-seat-marker.is-blind {
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sim-table.position-table.is-headsup .position-seat-edge-left > .sim-seat-marker.is-dealer,
+.sim-table.position-table.is-headsup .position-seat-edge-left > .sim-seat-marker.is-blind {
+  left: auto;
+  right: -18px;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.sim-table.position-table.is-headsup .position-seat-edge-right > .sim-seat-marker.is-dealer,
+.sim-table.position-table.is-headsup .position-seat-edge-right > .sim-seat-marker.is-blind {
+  left: -18px;
+  right: auto;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.sim-table.position-table.is-headsup .position-seat-edge-left > .sim-seat-marker.is-dealer,
+.sim-table.position-table.is-headsup .position-seat-edge-right > .sim-seat-marker.is-dealer {
+  top: 28%;
+}
+
+.sim-table.position-table.is-headsup .position-seat-edge-left > .sim-seat-marker.is-blind,
+.sim-table.position-table.is-headsup .position-seat-edge-right > .sim-seat-marker.is-blind {
+  top: 72%;
+}
+
+.position-zone {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 58px;
+}
+
+.position-status {
+  --position-timer: 100%;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 8px 10px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.position-status::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--position-timer);
+  height: 2px;
+  background: var(--accent);
+  opacity: .7;
+}
+
+.position-status-label {
+  min-width: 0;
+  color: var(--text-muted);
+  font: 700 10px/1.4 var(--font-mono);
+}
+
+.position-timer-value {
+  color: var(--accent-ink);
+  font: 900 12px var(--font-mono);
+}
+
+.position-answer-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.position-pos-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.position-pos-btn {
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 6px;
+  font-size: 10px;
+}
+
+.position-zone .position-pos-btn:not(:disabled),
+.position-answer-row .btn {
+  border-color: color-mix(in srgb, var(--accent-hi) 46%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.position-feedback {
+  display: grid;
+  gap: 5px;
+  padding: 9px 11px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--wrong) 8%, var(--surface));
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--wrong);
+  border-radius: var(--radius-sm);
+}
+
+.position-feedback strong {
+  color: var(--text);
+  font: 900 12px var(--font-mono);
+}
+
+.position-feedback > span {
+  color: var(--text-muted);
+  font: 700 11px/1.35 var(--font-mono);
+}
+
+.position-feedback-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: 2px;
+}
+
+.position-feedback-controls .btn {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 10px;
+}
+
+.position-feedback-timer {
+  flex: 1 1 auto;
+  color: var(--accent-hi);
+  font: 800 10px var(--font-mono);
+}
+
+.position-config-controls {
+  display: grid;
+  gap: 1px;
+  margin: 2px 0 9px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.position-control-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 35px;
+  gap: 9px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.position-control-label {
+  color: var(--text-muted);
+  font: 800 10px var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.position-control-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.position-control-row .btn {
+  min-width: 29px;
+  min-height: 27px;
+  padding: 3px 7px;
+  font-size: 10px;
+}
+
+.position-control-row .btn:disabled {
+  cursor: default;
+}
+
+.position-control-value {
+  display: grid;
+  min-width: 48px;
+  min-height: 27px;
+  place-items: center;
+  color: var(--accent-ink);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font: 900 11px var(--font-mono);
+}
+
+.position-control-toggle,
+.position-timer-toggle {
+  min-width: 88px !important;
+  letter-spacing: .03em;
+}
+
+.position-timer-toggle {
+  min-width: 40px !important;
+}
+
+.position-mode-buttons .btn-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.position-gallery .range-card,
+.position-mode-card {
+  width: 170px;
+  height: 132px;
+  min-height: 132px;
+}
+
+.position-mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.position-gallery .range-gallery-track {
+  align-items: stretch;
+}
+
+.position-mode-card .sim-duel-preset-description {
+  min-height: 34px;
+}
+
+.position-mode-card .sim-duel-preset-summary {
+  margin-top: auto;
+}
+
+@media (max-width: 720px) {
+  .position-table {
+    padding: 66px 46px 76px;
+  }
+
+  .position-seat {
+    width: 74px;
+    height: 88px;
+    gap: 2px;
+    padding: 4px 5px;
+  }
+
+  .position-seat-cards,
+  .position-seat-cards .sim-card-back {
+    min-height: 36px;
+    height: 36px;
+  }
+
+  .position-seat-cards .sim-card-back {
+    width: 28px;
+    border-radius: 6px;
+  }
+
+  .position-table .sim-seat-pos,
+  .position-table .sim-seat-stack,
+  .position-table .sim-seat-action {
+    min-height: 9px;
+    font-size: 8px;
+  }
+
+  .position-center {
+    width: min(72%, 310px);
+  }
+
+  .position-question {
+    font-size: clamp(16px, 5vw, 21px);
+  }
+
+  .position-board .sim-board-card {
+    width: 31px;
+    height: 40px;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 1023px) {
+  #grid.pot-odds-trainer-stage { min-height: 760px; }
+
+  .pot-odds-trainer-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "table"
+      "response"
+      "outs"
+      "footer";
+    overflow-y: auto;
+  }
+
+  .pot-odds-trainer-table {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .pot-odds-trainer-out-grid {
+    overflow-x: auto;
+    grid-template-columns: repeat(13, minmax(42px, 1fr));
+    grid-template-rows: repeat(4, auto);
+  }
+
+  .pot-odds-trainer-response {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 230px);
+    grid-template-rows: auto;
+  }
+
+  .pot-odds-trainer-equities {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pot-odds-trainer-keypad {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .math-trainer-subtabs .btn { min-height: 30px; font-size: 8px; }
+  .pot-odds-trainer-workspace { overflow-x: hidden; }
+  .pot-odds-trainer-scenario { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .pot-odds-trainer-board,
+  .pot-odds-trainer-hero {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .pot-card { width: 36px; height: 46px; }
+  .pot-odds-trainer-out-grid {
+    grid-template-columns: repeat(13, 42px);
+    grid-template-rows: repeat(4, 42px);
+  }
+  .pot-odds-trainer-response {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+  .pot-odds-trainer-equities { grid-template-columns: minmax(0, 1fr); }
+  .pot-odds-trainer-equities,
+  .pot-odds-trainer-keypad {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .pot-odds-trainer-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ============================================================================
+ * Simulator · Pot Odds
+ * Capa de decisión rápida. El análisis detallado permanece en el Pot Odds Lab.
+ * ========================================================================== */
+.sim-pot-odds-stage {
+  width: min(100%, 720px);
+  min-height: 0;
+  display: grid;
+  align-content: center;
+  gap: var(--sp-3);
+}
+
+.sim-pot-odds-waiting {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-3);
+  padding: 36px 24px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+}
+
+.sim-pot-odds-waiting h2 { margin: 0; font: 800 20px var(--font-ui); }
+.sim-pot-odds-waiting p { max-width: 400px; margin: 0; color: var(--text-muted); font: 600 12px/1.5 var(--font-ui); }
+
+.sim-pot-odds-table {
+  min-height: 340px;
+  display: grid;
+  grid-template-rows: auto 1fr auto 1fr auto;
+  justify-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--border-soft);
+  border-radius: 50% / 22%;
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+}
+
+.sim-pot-odds-table-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sim-pot-odds-project,
+.sim-pot-pot {
+  color: var(--accent-ink);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.sim-pot-odds-project { padding: 3px 7px; font: 800 9px var(--font-mono); }
+
+.sim-pot-seat {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font: 700 10px var(--font-mono);
+}
+
+.sim-pot-seat-action { color: var(--wrong); }
+.sim-pot-hero { color: var(--accent-ink); }
+.sim-pot-hero-cards, .sim-pot-board { display: flex; gap: 5px; align-items: center; }
+
+.sim-pot-card {
+  width: 32px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  font: 700 11px var(--font-mono);
+}
+
+.sim-pot-card[data-suit="♥"],
+.sim-pot-card[data-suit="♦"] { color: color-mix(in srgb, var(--wrong) 80%, var(--text)); }
+.sim-pot-card.is-muted { opacity: .45; }
+
+.sim-pot-pot {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 5px 11px;
+  font: 700 10px var(--font-mono);
+}
+.sim-pot-pot strong { font-size: 17px; }
+.sim-pot-pot-label { color: var(--text-muted); font-size: 8px; letter-spacing: .08em; }
+
+.sim-pot-decision {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+}
+
+.sim-pot-verdict { font: 800 14px var(--font-ui); }
+.sim-pot-verdict.is-correct { color: var(--accent-ink); }
+.sim-pot-verdict.is-error { color: var(--wrong); }
+.sim-pot-reason { margin: 0; color: var(--text-muted); font: 600 11px/1.4 var(--font-ui); }
+.sim-pot-export-notice { color: var(--text-muted); font: 700 9px var(--font-mono); }
+.assistant-panel.is-pot-odds { border-color: color-mix(in srgb, var(--accent) 24%, var(--border)); }
+
+/* Pot Odds usa ahora la misma mesa 6-max de Showdown. Estas reglas anulan la
+   primera superficie compacta sin alterar el panel, las decisiones ni el Lab. */
+.sim-pot-odds-play { max-width: 680px; }
+.sim-pot-odds-table {
+  min-height: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.sim-pot-odds-table .sim-felt {
+  background: color-mix(in srgb, var(--surface-2) 76%, var(--surface));
+}
+.sim-pot-odds-table .sim-duel-center { width: 78%; }
+
+/* La mesa Pot Odds comparte la geometría de Showdown, pero necesita un
+   colchón lateral propio para que las fichas/asientos no salgan del stage. */
+.sim-pot-odds-play .sim-main { padding-inline: 58px; }
+.sim-pot-odds-table { max-width: 590px; padding-inline: 0; }
+.sim-pot-odds-table .sim-felt { max-width: 590px; }
+
+/* Pot Odds: el acceso al Lab no modifica el ritmo de decisiones y las fichas
+   hacen visible de un vistazo el bote y la apuesta que Hero debe pagar. */
+.sim-pot-odds-play { position: relative; }
+.sim-pot-open-lab {
+  position: absolute;
+  z-index: 7;
+  top: 12px;
+  right: 12px;
+  min-height: 34px;
+  padding: 5px 12px;
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface-2));
+  font-size: 10px;
+}
+.sim-pot-decision .sim-decisions > .btn {
+  min-width: 112px;
+  min-height: 46px;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.sim-pot-decision .sim-decisions {
+  width: min(100%, 380px);
+  align-items: center;
+  margin-inline: auto;
+}
+.sim-pot-chip-stack {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: var(--text);
+  font: 800 9px var(--font-mono);
+  pointer-events: none;
+}
+.sim-pot-chip-pile { position: relative; display: block; width: 24px; height: 18px; }
+.sim-pot-chip {
+  position: absolute;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #7892a7;
+  border-radius: 50%;
+  background: #304659;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
+}
+.sim-pot-chip:nth-child(1) { top: 0; transform: translateX(-50%); }
+.sim-pot-chip:nth-child(2) { top: -4px; transform: translateX(-50%); background: #263746; }
+.sim-pot-chip:nth-child(3) { top: -8px; transform: translateX(-50%); background: #38566e; }
+.sim-pot-chip-value {
+  min-width: 30px;
+  padding: 1px 4px;
+  color: var(--accent-ink);
+  text-align: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--bg));
+}
+.sim-pot-center-wager {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 16%;
+  transform: translate(-50%, -50%);
+}
+.sim-pot-seat-wager { position: absolute; z-index: 5; }
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-0,
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-1 {
+  left: 50%;
+  top: calc(100% + 27px);
+  transform: translateX(-50%);
+}
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-3,
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-4 {
+  left: 50%;
+  bottom: calc(100% + 27px);
+  transform: translateX(-50%);
+}
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-2 {
+  right: calc(100% + 27px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.sim-pot-odds-table.is-fixed .sim-pot-seat-wager.is-slot-5 {
+  left: calc(100% + 27px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sim-pot-internal-lab {
+  display: grid;
+  place-items: center;
+}
+.sim-pot-lab-card {
+  width: min(100%, 640px);
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.sim-pot-lab-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sim-pot-lab-copy, .sim-pot-lab-detail { margin: 0; color: var(--text-muted); font: 600 11px/1.45 var(--font-ui); }
+.sim-pot-lab-cards { display: grid; gap: 7px; }
+.sim-pot-lab-card-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 8px; }
+.sim-pot-lab-card-row .sim-board { justify-content: flex-start; margin: 0; }
+.sim-pot-lab-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.sim-pot-lab-metrics .stat-line { padding: 5px; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); }
+.sim-pot-lab-deck { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 2px; }
+.sim-pot-lab-deck-card { min-height: 25px; padding: 1px; font-size: 8px; }
+.sim-pot-embedded-lab { position: relative; width: 100%; height: 100%; }
+.sim-pot-embedded-lab-grid { width: 100%; height: 100%; }
+.sim-pot-embedded-lab-grid .math-trainer-stage { min-height: 100%; }
+.sim-pot-embedded-back { position: absolute; right: 10px; top: 10px; z-index: 8; min-height: 26px; padding: 3px 8px; font-size: 9px; }
+
+/* En el Lab abierto desde Simulator no hay una nueva ronda: se conserva la
+   mesa original. Quitamos transporte/decisiones de ejercicio y liberamos ese
+   alto para el análisis y el mazo. */
+.sim-pot-embedded-lab .pot-odds-trainer-top-actions .btn:first-child,
+.sim-pot-embedded-lab .pot-odds-trainer-top-actions .btn:last-child,
+.sim-pot-embedded-lab .pot-odds-trainer-footer { display: none; }
+.sim-pot-embedded-lab .pot-odds-trainer-workspace {
+  grid-template-rows: minmax(420px, 1.45fr) minmax(220px, .75fr);
+  grid-template-areas:
+    "table response"
+    "outs outs";
+}
+.sim-pot-embedded-lab .pot-odds-trainer-outs-pane { padding-bottom: var(--sp-4); }
+
+/* Lab del Simulador: el keypad no roba espacio permanente. Aparece junto al
+   bloque técnico que se esté editando y conserva los mismos handlers del Lab. */
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-response {
+  position: relative;
+  grid-template-rows: minmax(0, 1fr);
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-keypad { display: none; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-response:focus-within .pot-odds-trainer-keypad {
+  position: absolute;
+  z-index: 9;
+  top: 42px;
+  right: 12px;
+  display: grid;
+  width: min(280px, calc(100% - 24px));
+  min-height: 250px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .35);
+}
+.sim-pot-embedded-lab .pot-odds-trainer-scenario,
+.sim-pot-embedded-lab .pot-odds-trainer-equities {
+  gap: 10px;
+}
+.sim-pot-embedded-lab .pot-technical-field,
+.sim-pot-embedded-lab .pot-odds-trainer-scenario span {
+  min-height: 48px;
+  padding: 7px 9px;
+  font-size: 10px;
+}
+.sim-pot-embedded-lab .pot-technical-input { font-size: 15px; }
+.sim-pot-embedded-lab .pot-technical-field strong,
+.sim-pot-embedded-lab .pot-odds-trainer-scenario strong { font-size: 15px; }
+.sim-pot-embedded-lab .pot-odds-trainer-out-actions .btn {
+  min-height: 28px;
+  padding: 3px 8px;
+  font-size: 9px;
+}
+.sim-pot-embedded-lab .pot-row-label { font-size: 9px; }
+.sim-pot-embedded-lab .pot-equity-field {
+  min-height: 48px;
+  padding: 7px 9px;
+  align-items: flex-start;
+}
+.sim-pot-embedded-lab .pot-equity-label { font-size: 9px; }
+.sim-pot-embedded-lab .pot-equity-value { font-size: 15px; }
+
+/* Recompone el bloque superior una vez retirado el keypad fijo: las cartas y
+   el desarrollo matemático ocupan el alto disponible en vez de quedarse en
+   una esquina con una columna vacía. */
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 20px;
+  border-right: 0;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-lab-spot { gap: 16px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-card-row { min-height: 58px; gap: 7px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-card { width: 46px; height: 58px; font-size: 14px; }
+.sim-pot-embedded-lab .pot-lab-mini-flop { min-width: 178px; }
+.sim-pot-embedded-lab .pot-lab-mini-hero,
+.sim-pot-embedded-lab .pot-lab-mini-villain { min-width: 142px; }
+.sim-pot-embedded-lab .pot-lab-board-line { gap: 28px; }
+.sim-pot-embedded-lab .pot-lab-player-line { gap: 42px; }
+.sim-pot-embedded-lab .pot-lab-analysis {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  width: 42%;
+  display: block;
+  padding: 20px;
+  background: transparent;
+  pointer-events: none;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-equities {
+  align-content: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.sim-pot-embedded-lab .pot-lab-workspace {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(420px, 1.45fr) minmax(220px, .75fr);
+  grid-template-areas:
+    "table"
+    "outs";
+}
+.sim-pot-embedded-lab .pot-math-log {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 11px;
+}
+.sim-pot-embedded-lab .pot-math-block:last-child { grid-column: 1 / -1; }
+.sim-pot-embedded-lab .pot-math-block { gap: 3px; padding: 9px 11px; }
+.sim-pot-embedded-lab .pot-math-block strong { font-size: 11px; }
+.sim-pot-embedded-lab .pot-result-line { font-size: 12px; }
+.sim-pot-embedded-lab .pot-out-cell .pot-card { font-size: 11px; }
+
+/* El Lab del simulador usa todo el ancho del escenario. Mantiene una sola
+   superficie visual (sin divisor), pero reparte la información técnica en dos
+   zonas reales: así las métricas no pisan el spot y el mazo conserva su fila. */
+.sim-pot-embedded-lab .pot-lab-workspace {
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  grid-template-rows: minmax(330px, 1fr) minmax(220px, .62fr);
+  grid-template-areas:
+    "table response"
+    "outs outs";
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table {
+  grid-template-rows: auto minmax(142px, auto) minmax(0, 1fr);
+  gap: 12px;
+  padding: 18px 24px;
+}
+.sim-pot-embedded-lab .pot-lab-analysis {
+  position: static;
+  z-index: auto;
+  display: grid;
+  width: auto;
+  padding: 18px 22px;
+  pointer-events: auto;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-equities {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-table > .pot-math-log {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-table > .pot-math-log .pot-math-block:last-child {
+  grid-column: auto;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-outs-pane {
+  padding: 12px 24px 18px;
+}
+
+/* Distribución final del laboratorio incrustado. Los hijos del bloque de mesa
+   pasan a la cuadrícula principal para que cada franja use el ancho completo:
+   datos, cartas, cálculo y mazo. */
+.sim-pot-embedded-lab .pot-lab-workspace {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 132px 126px 150px minmax(220px, 1fr);
+  grid-template-areas:
+    "spot spot scenario"
+    "spot spot response"
+    "math math math"
+    "outs outs outs";
+  align-content: stretch;
+  background: var(--surface);
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table {
+  display: contents;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-scenario {
+  grid-area: scenario;
+  align-self: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 8px 22px 6px 10px;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-scenario .pot-technical-field {
+  min-height: 36px;
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color .15s ease, background .15s ease;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-scenario .pot-technical-field:focus-within,
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-scenario .pot-technical-field.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface-2));
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-scenario .pot-technical-input {
+  font-size: 14px;
+  cursor: text;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-lab-spot {
+  grid-area: spot;
+  align-self: center;
+  justify-self: stretch;
+  gap: 10px;
+  padding: 0 24px;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-lab-board-line { gap: 24px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-lab-player-line { gap: 36px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-card-row { min-height:52px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-card { width:42px; height:52px; }
+.sim-pot-embedded-lab .pot-lab-analysis {
+  grid-area: response;
+  align-self: stretch;
+  padding: 6px 22px 8px 10px;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-equities {
+  align-content: center;
+  gap: 4px;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-technical-field {
+  min-height: 34px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--border);
+  background: transparent;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-equity-value { font-size: 14px; }
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table > .pot-math-log {
+  grid-area: math;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: stretch;
+  gap: 16px;
+  padding: 8px 24px 10px;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table > .pot-math-log .pot-math-block {
+  padding: 6px 9px;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table > .pot-math-log .pot-math-block:last-child {
+  grid-column: auto;
+}
+.sim-pot-embedded-lab .pot-odds-trainer-outs-pane {
+  grid-area: outs;
+  min-height: 0;
+  padding: 12px 24px 16px;
+}
+.sim-pot-embedded-lab .pot-lab-deck { gap: 5px; }
+
+/* Estructura estable del Lab dentro del simulador: no se usa `display: contents`
+   para evitar que los campos técnicos se salgan de su fila. */
+.sim-pot-embedded-lab .pot-lab-workspace {
+  grid-template-columns: minmax(0, 1.9fr) minmax(250px, .82fr);
+  grid-template-rows: minmax(370px, 1fr) minmax(240px, .68fr);
+  grid-template-areas:
+    "table response"
+    "outs outs";
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table {
+  display: grid;
+  grid-area: table;
+  grid-template-rows: minmax(148px, auto) minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px 24px;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-lab-spot {
+  grid-area: auto;
+  padding: 0;
+}
+.sim-pot-embedded-lab .pot-lab-workspace .pot-odds-trainer-table > .pot-math-log {
+  grid-area: auto;
+  align-self: stretch;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0;
+}
+.sim-pot-embedded-lab .pot-lab-analysis {
+  display: grid;
+  grid-area: response;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 14px;
+  padding: 18px 20px 14px 12px;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-lab-scenario {
+  grid-area: auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, 40px);
+  align-self: start;
+  gap: 6px;
+  padding: 0;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-lab-scenario .pot-technical-field {
+  min-height: 40px;
+  height: 40px;
+  padding: 6px 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-lab-scenario .pot-technical-field:focus-within,
+.sim-pot-embedded-lab .pot-lab-analysis .pot-lab-scenario .pot-technical-field.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface-2));
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-lab-scenario .pot-technical-input {
+  font-size: 15px;
+  cursor: text;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-odds-trainer-equities {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 6px;
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-odds-trainer-equities .pot-technical-field {
+  min-height: 34px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--border);
+}
+.sim-pot-embedded-lab .pot-lab-analysis .pot-odds-trainer-equities .pot-equity-value {
+  font-size: 14px;
+}
+
+/* Lab interno de Pot Odds: superficie propia del simulador. No reutiliza la
+   maqueta del Math Trainer, pero conserva el mismo estado y las mismas reglas. */
+.sim-pot-internal-lab {
+  width: 100%;
+  min-height: 0;
+  display: block;
+  padding: 10px;
+  overflow: auto;
+  background: var(--surface);
+}
+.sim-pot-lab-shell {
+  min-width: 0;
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.sim-pot-lab-toolbar,
+.sim-pot-lab-deck-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sim-pot-lab-toolbar {
+  min-height: 50px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-soft);
+}
+.sim-pot-lab-identity,
+.sim-pot-lab-actions,
+.sim-pot-lab-deck-controls,
+.sim-pot-lab-slot-row {
+  display: flex;
+  align-items: center;
+}
+.sim-pot-lab-identity { gap: 8px; color: var(--text); font: 800 11px var(--font-mono); letter-spacing: .05em; }
+.sim-pot-lab-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 4px;
+  color: var(--text);
+  background: var(--accent);
+  font: 800 9px var(--font-mono);
+}
+.sim-pot-lab-actions,
+.sim-pot-lab-deck-controls { justify-content: flex-end; gap: 5px; flex-wrap: wrap; }
+.sim-pot-lab-actions .btn,
+.sim-pot-lab-deck-controls .btn { min-height: 28px; padding: 4px 9px; font-size: 9px; }
+.sim-pot-lab-export-notice {
+  flex: 0 0 100%;
+  order: 3;
+  color: var(--accent-ink);
+  font: 700 9px var(--font-mono);
+  text-align: right;
+}
+.sim-pot-lab-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(228px, .5fr);
+  min-width: 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.sim-pot-lab-cards-panel,
+.sim-pot-lab-scenario { min-width: 0; padding: 16px 20px; }
+.sim-pot-lab-scenario { display: grid; align-content: start; gap: 8px; border-left: 1px solid var(--border-soft); }
+.sim-pot-lab-section-title {
+  margin: 0;
+  color: var(--accent-ink);
+  font: 800 10px var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.sim-pot-lab-board,
+.sim-pot-lab-players { display: grid; gap: 14px; }
+.sim-pot-lab-board { grid-template-columns: minmax(0, 1.6fr) minmax(78px, .7fr) minmax(78px, .7fr); margin-top: 14px; }
+.sim-pot-lab-players { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
+.sim-pot-lab-card-group { min-width: 0; display: grid; justify-items: center; gap: 5px; }
+.sim-pot-lab-card-label { color: var(--text-muted); font: 700 9px var(--font-mono); text-transform: uppercase; }
+.sim-pot-lab-slot-row { justify-content: center; gap: 5px; }
+.sim-pot-lab-slot {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+.sim-pot-lab-slot:hover,
+.sim-pot-lab-slot.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.sim-pot-lab-slot.is-hand { border-color: color-mix(in srgb, var(--accent) 72%, var(--border)); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.sim-pot-lab-slot.is-hand .sim-board-card { color: var(--accent-hi); }
+.sim-pot-lab-slot .sim-board-card { margin: 0; }
+.sim-pot-lab-input {
+  min-height: 50px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-2) 76%, var(--surface));
+}
+.sim-pot-lab-input > span,
+.sim-pot-lab-computed-row > span { color: var(--text-muted); font: 700 8px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.sim-pot-lab-input input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+  font: 800 15px var(--font-mono);
+}
+.sim-pot-lab-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent); }
+.sim-pot-lab-computed { display: grid; gap: 2px; margin-top: 2px; padding: 6px 0 0; border-top: 1px solid var(--border-soft); }
+.sim-pot-lab-computed-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 3px 0; }
+.sim-pot-lab-computed-row strong { color: var(--accent-ink); font: 800 12px var(--font-mono); }
+.sim-pot-lab-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.sim-pot-lab-analysis-card {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-2) 32%, transparent);
+}
+.sim-pot-lab-analysis-card h3 { margin: 0 0 2px; color: var(--accent-ink); font: 800 10px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.sim-pot-lab-analysis-row { display: grid; gap: 2px; color: var(--text-muted); font: 600 10px/1.35 var(--font-mono); }
+.sim-pot-lab-analysis-row strong { overflow-wrap: anywhere; color: var(--text); font-weight: 700; }
+.sim-pot-lab-reveal-detail { margin: 0; padding: 9px 20px; color: var(--accent-ink); border-bottom: 1px solid var(--border-soft); font: 600 11px/1.45 var(--font-mono); }
+.sim-pot-lab-deck-panel { min-width: 0; padding: 12px 20px 16px; }
+.sim-pot-lab-deck { grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 4px; margin-top: 10px; }
+.sim-pot-lab-deck-card {
+  min-height: 29px;
+  padding: 2px;
+  color: var(--text);
+  border-color: transparent;
+  background: transparent;
+  font: 800 10px var(--font-mono);
+}
+.sim-pot-lab-deck-card:hover { border-color: var(--border); background: var(--surface-2); }
+.sim-pot-lab-deck-card.is-red { color: #d2756b; }
+.sim-pot-lab-deck-card.is-used { opacity: .25; }
+.sim-pot-lab-deck-card.is-out { color: var(--accent-ink); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+/* Geometría común de decisiones del simulador. Showdown es la referencia para
+   Preflop, Position y Pot Odds: misma franja, altura y botones equilibrados. */
+body.mode-simulator .sim-zone {
+  min-height: 154px;
+  max-height: 154px;
+}
+.position-zone,
+.sim-pot-decision.sim-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: calc(100% - var(--sim-seat-gutter));
+  max-width: 640px;
+  margin-inline: auto;
+}
+.sim-pot-decision .sim-decisions {
+  width: 100%;
+  align-items: stretch;
+}
+.sim-pot-decision .sim-decisions > .btn {
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: 14px;
+}
+.position-zone .position-answer-row,
+.position-zone .position-pos-buttons {
+  width: 100%;
+}
+
+/* Las galerías de ejercicios usan el mismo tamaño estable que Preflop. */
+.position-gallery .range-card,
+.position-mode-card {
+  flex: 0 0 150px;
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+  height: 198px;
+  min-height: 198px;
+}
+@media (max-width: 700px) {
+  .sim-pot-internal-lab { padding: 0; }
+  .sim-pot-lab-toolbar { align-items: flex-start; flex-direction: column; }
+  .sim-pot-lab-actions { justify-content: flex-start; }
+  .sim-pot-lab-main { grid-template-columns: minmax(0, 1fr); }
+  .sim-pot-lab-scenario { border-top: 1px solid var(--border-soft); border-left: 0; }
+  .sim-pot-lab-analysis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sim-pot-lab-board { grid-template-columns: minmax(0, 1fr); }
+  .sim-pot-lab-players { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .sim-pot-odds-play .sim-main { padding-inline: 24px; }
+  .sim-pot-odds-table, .sim-pot-odds-table .sim-felt { max-width: 100%; }
+  .sim-pot-open-lab { top: 8px; right: 8px; }
+  .sim-pot-center-wager { top: 16%; }
+}
+@media (max-width: 600px) {
+  .sim-pot-lab-card { padding: 12px; }
+  .sim-pot-lab-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sim-pot-lab-card-row { grid-template-columns: 70px minmax(0, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .sim-pot-odds-table { min-height: 290px; padding: 14px 12px; border-radius: 22px; }
+  .sim-pot-card { width: 29px; height: 38px; font-size: 10px; }
+  .sim-pot-odds-stage { gap: var(--sp-2); }
+}
+
+/* Pot Odds Simulator · configuración compacta: los ajustes viven en selects
+   y checks cortos; los botones quedan reservados para acciones inmediatas. */
+.sim-pot-options { gap: 10px; }
+.sim-pot-options > .panel-group-title { margin-top: 3px; }
+.sim-pot-options .collapsible { margin-top: 1px; }
+.sim-pot-options .collapsible-body { display: none !important; gap: 9px; padding-top: 8px; }
+.sim-pot-options .collapsible.is-open .collapsible-body { display: grid !important; }
+.sim-pot-options .panel-group { gap: 4px; }
+.sim-pot-options .select { min-height: 30px; }
+.sim-pot-session-actions .btn-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sim-pot-quick-actions .btn-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sim-pot-quick-actions .btn { min-width: 0; padding-inline: 5px; }
+.sim-pot-compact-checks { display: grid; gap: 4px; }
+.sim-pot-check-list { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.sim-pot-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font: 700 9px var(--font-mono);
+  cursor: pointer;
+}
+.sim-pot-check input { margin: 0; accent-color: var(--accent); }
+.sim-pot-check:has(input:checked) { color: var(--accent-ink); }
+@media (max-width: 600px) {
+  .sim-pot-quick-actions .btn-row { grid-template-columns: minmax(0, 1fr); }
+  .sim-pot-check-list { gap: 5px 7px; }
 }

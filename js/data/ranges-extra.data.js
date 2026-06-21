@@ -32,13 +32,15 @@
     titleTemplate: '{hero} vs {vs} \u00B7 Vs 4Bet'
   });
 
-  RT.defineAction({ id: '3BET_MAIN', label: '3Bet principal', color: '#00B050' });
-  RT.defineAction({ id: '3BET_MIXED', label: '3Bet mixto', color: '#92D050' });
-  RT.defineAction({ id: 'CALL_STANDARD', label: 'Call estandar', color: '#FFC100' });
-  RT.defineAction({ id: 'CALL_MARGINAL', label: 'Call marginal', color: '#FFFF00' });
-  RT.defineAction({ id: '5BET_STACKOFF', label: '5Bet+ / stack-off', color: '#00B050' });
-  RT.defineAction({ id: 'CALL_VS_4BET', label: 'Call vs 4Bet', color: '#FFFF00' });
-  RT.defineAction({ id: 'FOLD_VS_4BET', label: 'Fold vs 4Bet', color: '#AEAAAA' });
+  // Variantes de la paleta principal: cada decisión se reconoce al instante,
+  // sin volver a los verdes y amarillos saturados originales.
+  RT.defineAction({ id: '3BET_MAIN', label: '3Bet principal', color: '#5f6692' });
+  RT.defineAction({ id: '3BET_MIXED', label: '3Bet mixto', color: '#7a729d' });
+  RT.defineAction({ id: 'CALL_STANDARD', label: 'Call estandar', color: '#2f6f73' });
+  RT.defineAction({ id: 'CALL_MARGINAL', label: 'Call marginal', color: '#5b8580' });
+  RT.defineAction({ id: '5BET_STACKOFF', label: '5Bet+ / stack-off', color: '#9a6a66' });
+  RT.defineAction({ id: 'CALL_VS_4BET', label: 'Call vs 4Bet', color: '#4a7893' });
+  RT.defineAction({ id: 'FOLD_VS_4BET', label: 'Fold vs 4Bet', color: '#46515d' });
 
   const ranges = [
   {
