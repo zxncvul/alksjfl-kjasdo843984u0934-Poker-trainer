@@ -21,7 +21,7 @@
     </div>
 
     <nav class="tabs" id="mode-tabs" role="tablist" aria-label="Modos">
-      <button type="button" data-mode="study" role="tab">Estudio</button>
+      <button type="button" data-mode="study" role="tab">Visualizador</button>
       <button type="button" data-mode="training" role="tab">Entrenamiento</button>
       <button type="button" data-mode="simulator" role="tab">Simulador</button>
       <button type="button" data-mode="grid-trainer" role="tab">Grid Trainer</button>
@@ -40,6 +40,15 @@
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/>
+        </svg>
+      </button>
+      <button type="button" id="shortcuts-btn" class="icon-btn"
+              title="Atajos de teclado" aria-label="Atajos de teclado">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="12" rx="2"/>
+          <path d="M7 10h.01M11 10h.01M15 10h.01M19 10h.01M7 14h.01M11 14h6"/>
         </svg>
       </button>
       <button type="button" id="config-btn" class="icon-btn" title="Configuración">
@@ -63,6 +72,12 @@
         <span id="status-stats"></span>
       </div>
       <div id="grid"></div>
+      <section class="matrix-tools-toolbar" aria-label="Acciones y filtros de la matriz">
+        <section id="matrix-action-toolbar" class="matrix-action-toolbar"
+                 aria-label="Filtro por acciones" hidden></section>
+        <section id="matrix-filter-toolbar" class="matrix-filter-toolbar"
+                 aria-label="Filtros de la matriz" hidden></section>
+      </section>
       <!-- En una sesión del simulador esta superficie sustituye a la matriz. -->
       <section id="sim-stage" class="sim-stage" aria-label="Mesa del simulador"></section>
     </section>
@@ -106,6 +121,11 @@
   <script src="js/ui/settings.js"></script>
   <script src="js/ui/range-gallery.js"></script>
   <script src="js/ui/dialogs.js"></script>
+  <script src="js/ui/study/viewer-model.js"></script>
+  <script src="js/ui/study/range-form-model.js"></script>
+  <script src="js/ui/study/preflop-sequence-model.js"></script>
+  <script src="js/ui/study/range-advanced-config.js"></script>
+  <script src="js/ui/study/matrix-tools.js"></script>
   <script src="js/ui/quizzes/quiz-common-ui.js"></script>
   <script src="js/ui/quizzes/quiz-results-ui.js"></script>
   <script src="js/ui/study/study-ui.js"></script>

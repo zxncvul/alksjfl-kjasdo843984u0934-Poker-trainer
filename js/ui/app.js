@@ -41,9 +41,27 @@
       relative: null,
       hero: null,
       vs: null,
-      highlightAction: null,        // null = todas las acciones
-      heatmap: null,                // null | 'fails' | 'mastery'
-      filters: { ranks: new Set(), suited: false, offsuit: false, pair: false, connector: false }
+      profile: 'pool',
+      collection: 'default',
+      matrixFilters: {
+        textureFilter: 'all',
+        familyFilters: new Set(),
+        strengthFilters: new Set(),
+        rankFilters: new Set(),
+        progress: new Set(), selectedActions: new Set(),
+        actionFilterActive: false
+      },
+      actionToolbar: {
+        activeAction: null, selectedActions: new Set(),
+        enabledActions: new Set(), disabledActions: new Set()
+      },
+      visibleSelection: new Set()
+    },
+
+    // Preparado para colecciones reales sin cambiar todavia el backend.
+    collections: {
+      active: 'default',
+      items: [{ id: 'default', label: 'Mis rangos', source: null }]
     },
 
     // Configuración del quiz de rango completo (Sets vacíos = todos).
@@ -71,6 +89,13 @@
     // Categoría visible en la biblioteca inferior de rangos.
     galleryFilter: 'all',
     galleryRelatives: new Set(['IP', 'OOP']),
+    libraryFilters: {
+      family: 'all',
+      favoritesOnly: false,
+      query: '',
+      selectedTags: new Set(),
+      relatives: new Set(['IP', 'OOP'])
+    },
     galleryScroll: 0,
     gallerySelection: new Set(),
 
@@ -96,6 +121,7 @@
   let rangeGallery = null;
   let dialogs = null;
   let studyUI = null;
+  let matrixTools = null;
   let quizCommonUI = null;
   let quizResultsUI = null;
   let rangeQuizUI = null;
@@ -202,27 +228,29 @@
    * ======================================================================*/
 
   function studyDimmedSet() {
-    const f = ui.study.filters;
-    const anyFilter = f.ranks.size || f.suited || f.offsuit || f.pair || f.connector;
+    const context = studyContext();
+    const map = context ? RT.Engine.getActionMap(context) : {};
+    const filters = ui.study.matrixFilters;
+    const anyFilter = filters.textureFilter !== 'all' ||
+      filters.familyFilters.size || filters.strengthFilters.size ||
+      filters.rankFilters.size ||
+      filters.progress.size || filters.selectedActions.size;
     if (!anyFilter) return null;
-    const filter = {
-      ranks: f.ranks.size ? Array.from(f.ranks) : undefined,
-      suited: f.suited || undefined,
-      offsuit: f.offsuit || undefined,
-      pair: f.pair || undefined,
-      connector: f.connector || undefined
-    };
+    const visible = new Set(RT.MatrixTools.applyMatrixFilters(
+      RT.Hands.ALL_HANDS, filters, map, RT.Stats.getHandPerformanceMap()));
     const dimmed = new Set();
-    for (const h of RT.Hands.ALL_HANDS) {
-      if (!RT.Hands.matchesFilter(h, filter)) dimmed.add(h);
-    }
+    for (const h of RT.Hands.ALL_HANDS) if (!visible.has(h)) dimmed.add(h);
     return dimmed;
   }
 
   function studyContext() {
     const s = ui.study;
+    const collection = ui.collections && ui.collections.items
+      ? ui.collections.items.find(item => item.id === ui.collections.active)
+      : null;
     const ctx = {
-      source: ui.source, spot: s.spot, hero: s.hero,
+      source: collection && collection.source != null ? collection.source : ui.source,
+      spot: s.spot, hero: s.hero,
       relative: s.relative, vs: s.vs
     };
     return RT.Engine.isContextComplete(ctx) && RT.Engine.availableActions(ctx).length
@@ -230,6 +258,9 @@
   }
 
   function colorOf(actionId) {
+    const viewerColor = ui.mode === 'study' && RT.MatrixTools &&
+      RT.MatrixTools.getActionColor(actionId);
+    if (viewerColor) return viewerColor;
     const def = RT.Engine.getActionDef(actionId);
     return def ? def.color : '#888';
   }
@@ -252,31 +283,21 @@
   }
 
   function buildReferenceGridViewModel() {
-    if (ui.study.heatmap) {
-      const heat = RT.Stats.getHandHeat(ui.study.heatmap);
-      const base = '#0a0c0e';
-      const top = ui.study.heatmap === 'fails' ? '#c25450' : '#4caf82';
-      const colors = Object.create(null);
-      for (const h of Object.keys(heat)) {
-        colors[h] = blendHex(base, top, 0.25 + 0.75 * heat[h]);
-      }
-      return {
-        interactive: false,
-        colors,
-        metrics: RT.Stats.getHandPerformanceMap(),
-        showLabels: ui.showLabels
-      };
-    }
     const ctx = studyContext();
     const colors = Object.create(null);
     if (ctx) {
       const map = RT.Engine.getActionMap(ctx);
       for (const h of Object.keys(map)) {
-        if (ui.study.highlightAction && map[h] !== ui.study.highlightAction) continue;
         colors[h] = colorOf(map[h]);
       }
     }
-    return { interactive: false, colors, dimmed: studyDimmedSet(), showLabels: ui.showLabels };
+    return {
+      interactive: false,
+      colors,
+      dimmed: studyDimmedSet(),
+      selected: ui.study.visibleSelection,
+      showLabels: ui.showLabels
+    };
   }
 
   function buildGridViewModel() {
@@ -376,7 +397,10 @@
     if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
     const simTool = ui.mode === 'simulator' && RT.SimUI &&
       typeof RT.SimUI.currentTool === 'function' ? RT.SimUI.currentTool() : '';
-    if (simTool !== 'duel' && simTool !== 'position' && simTool !== 'pot-odds') renderLeftUtility(panel);
+    if (ui.mode !== 'study' &&
+        simTool !== 'duel' && simTool !== 'position' && simTool !== 'pot-odds') {
+      renderLeftUtility(panel);
+    }
     if (ui.mode === 'study') studyUI.renderPanel(panel);
     else if (ui.mode === 'training') trainingUI.renderPanel(panel);
     else renderSimulatorWorkspacePanel(panel);
@@ -393,7 +417,7 @@
         : 'Entrenamiento · Preguntas';
     }
     return {
-      study: 'Estudio',
+      study: 'Visualizador',
       simulator: 'Simulador',
       'grid-trainer': 'Grid Trainer',
       'math-trainer': 'Math Trainer'
@@ -409,7 +433,9 @@
   }
 
   function currentShortcuts() {
-    if (ui.mode === 'study') return [['F', 'Filtros'], ['H', 'Heatmap'], ['Esc', 'Cerrar']];
+    if (ui.mode === 'study') {
+      return [['Ctrl/Cmd+K', 'Buscador'], ['H', 'Progreso'], ['Esc', 'Cerrar']];
+    }
     if (isRangeTraining()) {
       return [['Enter', 'Comprobar'], ['N', 'Siguiente'], ['R', 'Reiniciar'], ['1–4', 'Acciones'], ['Esc', 'Cerrar']];
     }
@@ -467,8 +493,8 @@
             rows = [
               ['Spot', ctx ? RT.Engine.describeContext(ctx) : 'Sin completar'],
               ['Posición', ui.study.hero || 'Todas'],
-              ['Acción', ui.study.highlightAction
-                ? (RT.Engine.getActionDef(ui.study.highlightAction) || {}).label || ui.study.highlightAction
+              ['Acción', ui.study.matrixFilters.selectedActions.size
+                ? Array.from(ui.study.matrixFilters.selectedActions).join(' + ')
                 : 'Todas'],
               ['Familia', activeFamilyLabel()]
             ];
@@ -547,13 +573,11 @@
   }
 
   function activeFamilyLabel() {
-    const f = ui.study.filters;
-    const labels = [];
-    if (f.suited) labels.push('Suited');
-    if (f.offsuit) labels.push('Offsuit');
-    if (f.pair) labels.push('Parejas');
-    if (f.connector) labels.push('Conectores');
-    if (f.ranks.size) labels.push(Array.from(f.ranks).join(''));
+    const f = ui.study.matrixFilters;
+    const labels = Array.from(f.familyFilters);
+    if (f.textureFilter !== 'all') labels.push(f.textureFilter);
+    if (f.strengthFilters.size) labels.push(Array.from(f.strengthFilters).join('/'));
+    if (f.rankFilters.size) labels.push(Array.from(f.rankFilters).join(''));
     return labels.length ? labels.join(' · ') : 'Todas';
   }
 
@@ -639,9 +663,9 @@
     if (ui.mode === 'study') {
       const ctx = studyContext();
       return {
-        eyebrow: 'Asistente · Estudio',
+        eyebrow: 'Asistente · Visualizador',
         title: ctx ? RT.Engine.describeContext(ctx) : 'Explora tus rangos',
-        text: 'Selecciona un spot, una posición y una acción. Usa filtros para aislar familias y el heatmap para revisar tu progreso.'
+        text: 'Selecciona colección, spot, hero, rival, perfil y acción. La matriz central y el panel derecho mantienen el análisis.'
       };
     }
     if (isRangeTraining()) {
@@ -773,21 +797,16 @@
 
     if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') return;
     if (ui.mode === 'study') {
-      if (ui.study.heatmap) {
-        const heat = RT.Stats.getHandHeat(ui.study.heatmap);
-        label = ui.study.heatmap === 'fails' ? 'Heatmap · más falladas' : 'Heatmap · más dominadas';
-        els.statusLabel.textContent = label;
-        els.statusStats.textContent = `${Object.keys(heat).length} manos con datos`;
-        return;
-      }
       const ctx = studyContext();
       if (ctx) {
         label = RT.Engine.describeContext(ctx);
         const map = RT.Engine.getActionMap(ctx);
-        hands = Object.keys(map).filter(h =>
-          !ui.study.highlightAction || map[h] === ui.study.highlightAction);
-        hands = hands.filter(h => map[h] !== 'FOLD' ||
-          ui.study.highlightAction === 'FOLD');
+        hands = RT.MatrixTools.applyMatrixFilters(
+          Object.keys(map), ui.study.matrixFilters, map,
+          RT.Stats.getHandPerformanceMap());
+        if (!ui.study.matrixFilters.selectedActions.size) {
+          hands = hands.filter(h => map[h] !== 'FOLD');
+        }
       } else {
         label = 'Selecciona un contexto';
       }
@@ -902,8 +921,6 @@
   }
 
   function renderAll() {
-    // Un reset de progreso invalida cualquier heatmap que siguiera activo.
-    if (ui.study.heatmap && !RT.Stats.hasData) ui.study.heatmap = null;
     renderTabs();
     const isSim = ui.mode === 'simulator';
     const isGridTrainer = ui.mode === 'grid-trainer';
@@ -911,11 +928,14 @@
     const workspaceModuleId = isGridTrainer ? 'grid-trainer'
       : isMathTrainer ? 'math-trainer' : null;
     const simActive = isSim && ['deciding', 'feedback'].includes(RT.Simulator.state.status);
+    document.body.classList.toggle('mode-study', ui.mode === 'study');
     document.body.classList.toggle('mode-simulator', isSim);
     document.body.classList.toggle('mode-grid-trainer', isGridTrainer);
     document.body.classList.toggle('mode-math-trainer', isMathTrainer);
     document.body.classList.toggle('sim-session-active', simActive);
     if (workspaceModuleId) {
+      if (els.matrixActionToolbar) els.matrixActionToolbar.hidden = true;
+      if (els.matrixFilterToolbar) els.matrixFilterToolbar.hidden = true;
       const module = RT.Modules.get(workspaceModuleId);
       if (!module) throw new Error(`Módulo no registrado: ${workspaceModuleId}.`);
       activeWorkspaceModule = module;
@@ -932,10 +952,12 @@
       syncDesktopPanelMetrics();
       return;
     }
+    if (matrixTools) matrixTools.render();
     RT.Grid.render(buildGridViewModel());
     renderPanel();
     renderStatusBar();
     renderInsights();
+    if (matrixTools) matrixTools.renderUtilities(els.insights);
     if (isSim) RT.SimUI.renderStage(els.simStage, simHelpers());
     else els.simStage.innerHTML = '';
     renderRangeGallery();
@@ -953,7 +975,7 @@
     }
     const reference = document.body.classList.contains('mode-simulator')
       ? els.simStage
-      : els.grid;
+      : (document.body.classList.contains('mode-study') ? els.gridSection : els.grid);
     const gridRect = reference.getBoundingClientRect();
     const main = els.panel.parentElement;
     const mainRect = main.getBoundingClientRect();
@@ -1101,6 +1123,13 @@
     const t = ev.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
 
+    if (ui.mode === 'study' && (ev.ctrlKey || ev.metaKey) &&
+        ev.key.toLowerCase() === 'k') {
+      studyUI.openCommandPalette();
+      ev.preventDefault();
+      return;
+    }
+
     if (ui.mode === 'grid-trainer' || ui.mode === 'math-trainer') {
       const module = RT.Modules.get(ui.mode);
       if (module && module.handleKey && module.handleKey(ev.key)) ev.preventDefault();
@@ -1118,17 +1147,17 @@
     const rq = RT.RangeQuiz.state, sq = RT.SurgicalQuiz.state;
 
     const k = ev.key.toLowerCase();
-    if (ui.mode === 'study' && k === 'f') {
-      if (ui.openSections.has('study-filters')) ui.openSections.delete('study-filters');
-      else ui.openSections.add('study-filters');
-      renderPanel();
-      ev.preventDefault();
-      return;
-    }
-    if (ui.mode === 'study' && k === 'h' && RT.Stats.hasData) {
-      ui.study.heatmap = ui.study.heatmap === 'fails'
-        ? 'mastery'
-        : (ui.study.heatmap === 'mastery' ? null : 'fails');
+    if (ui.mode === 'study' && k === 'h' &&
+        !ev.ctrlKey && !ev.metaKey && !ev.altKey && RT.Stats.hasData) {
+      const progress = ui.study.matrixFilters.progress;
+      if (progress.has('fails')) {
+        progress.clear();
+        progress.add('mastery');
+      } else if (progress.has('mastery')) {
+        progress.clear();
+      } else {
+        progress.add('fails');
+      }
       renderAll();
       ev.preventDefault();
       return;
@@ -1169,11 +1198,15 @@
     els.statusStats = document.getElementById('status-stats');
     els.sourceLabel = document.getElementById('source-label');
     els.labelsToggle = document.getElementById('labels-toggle');
+    els.shortcutsButton = document.getElementById('shortcuts-btn');
     els.actionBar = document.getElementById('action-bar');
     els.simStage = document.getElementById('sim-stage');
     els.insights = document.getElementById('insights');
     els.grid = document.getElementById('grid');
     els.rangeGallery = document.getElementById('range-gallery');
+    els.gridSection = els.grid.closest('.grid-section');
+    els.matrixActionToolbar = document.getElementById('matrix-action-toolbar');
+    els.matrixFilterToolbar = document.getElementById('matrix-filter-toolbar');
     rangeGallery = RT.RangeGallery.create({
       ui,
       root: els.rangeGallery,
@@ -1205,6 +1238,13 @@
       rangeAnalytics,
       renderAll,
       renderPanel
+    });
+    matrixTools = RT.MatrixTools.create({
+      ui,
+      actionRoot: els.matrixActionToolbar,
+      filterRoot: els.matrixFilterToolbar,
+      getContext: studyContext,
+      renderAll
     });
     rangeQuizUI = RT.RangeQuizUI.create({
       ui,
@@ -1243,6 +1283,7 @@
     }
     ui.source = sources[0].id;
     els.sourceLabel.textContent = sources[0].label;
+    ui.collections.items[0].source = ui.source;
 
     RT.Engine.validate();
     RT.Settings.applyVisual();
@@ -1272,6 +1313,13 @@
 
     document.getElementById('config-btn').addEventListener('click', openConfigModal);
     document.getElementById('stats-btn').addEventListener('click', openStatsModal);
+    if (els.shortcutsButton) {
+      els.shortcutsButton.addEventListener('click', () => {
+        if (studyUI && typeof studyUI.openShortcuts === 'function') {
+          studyUI.openShortcuts();
+        }
+      });
+    }
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('pointerover', (ev) => showHelpFor(ev.target));
     document.addEventListener('focusin', (ev) => showHelpFor(ev.target));
@@ -1341,7 +1389,9 @@
       }
       renderAll();
     });
-    RT.on('favorites:changed', () => { /* el panel se re-renderiza donde toca */ });
+    RT.on('favorites:changed', () => {
+      if (!suppressEngineRender) renderAll();
+    });
 
     renderAll();
   }

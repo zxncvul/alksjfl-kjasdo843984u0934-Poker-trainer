@@ -52,6 +52,8 @@
         cell.appendChild(metric);
         cell.setAttribute('aria-label', hand);
         if (hand.length === 2) cell.classList.add('cell-pair');
+        else if (hand[2] === 's') cell.classList.add('cell-suited');
+        else cell.classList.add('cell-offsuit');
         container.appendChild(cell);
         cells[hand] = cell;
       }

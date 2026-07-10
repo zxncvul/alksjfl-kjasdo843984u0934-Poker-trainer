@@ -22,11 +22,19 @@
       }
 
       function contexts() {
-        if (contextsCache.has(ui.source)) return contextsCache.get(ui.source);
-        const items = RT.Engine.getContexts({ source: ui.source })
+        const collection = ui.collections && ui.collections.items
+          ? ui.collections.items.find(item => item.id === ui.collections.active)
+          : null;
+        const source = collection && collection.source != null ? collection.source : ui.source;
+        if (contextsCache.has(source)) return contextsCache.get(source);
+        const items = RT.Engine.getContexts({ source })
           .map(context => ({ context, actions: RT.Engine.availableActions(context) }))
           .filter(item => item.actions.length);
-        contextsCache.set(ui.source, items);
+        const validIds = new Set(items.map(item => contextId(item.context)));
+        Array.from(ui.gallerySelection).forEach(id => {
+          if (!validIds.has(id)) ui.gallerySelection.delete(id);
+        });
+        contextsCache.set(source, items);
         return items;
       }
 
@@ -95,8 +103,17 @@
         ui.study.relative = context.relative;
         ui.study.hero = context.hero;
         ui.study.vs = context.vs;
-        ui.study.highlightAction = null;
-        ui.study.heatmap = null;
+        if (ui.study.rangeForm && RT.RangeFormModel) {
+          const formSpot = RT.RangeFormModel.formSpotForEngine(context.spot);
+          ui.study.rangeForm.hero = context.hero || ui.study.rangeForm.hero;
+          ui.study.rangeForm.rival = context.vs || 'No aplica';
+          ui.study.rangeForm.relation = context.relative || 'Auto';
+          if (formSpot) {
+            ui.study.rangeForm.spot = formSpot;
+            ui.study.rangeForm.subSpot = RT.RangeFormModel.subSpots(formSpot)[0];
+          }
+          ui.study.rangeForm = RT.RangeFormModel.normalize(ui.study.rangeForm);
+        }
         onContextSelected(context);
       }
 
@@ -108,13 +125,9 @@
       }
 
       function visibleItems(items) {
-        const byCategory = ui.galleryFilter === 'all'
-          ? items
-          : items.filter(item => itemTags(item).has(ui.galleryFilter));
-        const hasRelativeDimension = items.some(item => item.context.relative);
-        if (!hasRelativeDimension || ui.galleryRelatives.size === 2) return byCategory;
-        return byCategory.filter(item =>
-          !item.context.relative || ui.galleryRelatives.has(item.context.relative));
+        return RT.ViewerModel.applyLibraryFilters(items, ui.libraryFilters, {
+          isFavorite: context => RT.Favorites.has(context)
+        });
       }
 
       function render() {
@@ -123,27 +136,33 @@
         root.hidden = false;
 
         const items = contexts();
-        const filterCategories = categories(items);
-        if (ui.galleryFilter !== 'all' &&
-            !filterCategories.some(category => category.id === ui.galleryFilter)) {
-          ui.galleryFilter = 'all';
-        }
+        const library = ui.libraryFilters;
 
         const head = el('div', 'range-gallery-head');
         const heading = el('div', 'range-gallery-heading');
+        const activeCollection = ui.collections && ui.collections.items
+          ? ui.collections.items.find(item => item.id === ui.collections.active)
+          : null;
         heading.appendChild(el('span', 'range-gallery-kicker', 'Biblioteca de rangos'));
         heading.appendChild(el('span', 'range-gallery-count',
+          `${activeCollection ? activeCollection.label + ' · ' : ''}` +
           `${ui.gallerySelection.size} seleccionados · ${items.length} contextos`));
         head.appendChild(heading);
 
         const filters = el('div', 'range-gallery-filters');
-        [{ id: 'all', label: 'Todos' }].concat(filterCategories).forEach(category => {
+        RT.ViewerModel.LIBRARY_FILTERS.forEach(category => {
+          const available = category.id === 'all' ||
+            RT.ViewerModel.applyLibraryFilters(items, {
+              family: category.id,
+              relatives: new Set(['IP', 'OOP'])
+            }, { isFavorite: context => RT.Favorites.has(context) }).length > 0;
           filters.appendChild(button(category.label, {
-            active: ui.galleryFilter === category.id,
+            active: library.family === category.id,
+            disabled: !available,
             variant: 'range-filter-btn',
             help: `Muestra los rangos relacionados con ${category.label}.`,
             onClick: () => {
-              ui.galleryFilter = category.id;
+              library.family = category.id;
               ui.galleryScroll = 0;
               render();
             }
@@ -155,15 +174,15 @@
           const relativeFilters = el('div', 'range-gallery-relative-filters');
           ['IP', 'OOP'].forEach(relative => {
             relativeFilters.appendChild(button(relative, {
-              active: ui.galleryRelatives.has(relative),
+              active: library.relatives.has(relative),
               variant: 'range-filter-btn',
               help: `Muestra u oculta los repertorios ${relative}.`,
               onClick: () => {
-                if (ui.galleryRelatives.has(relative)) {
-                  if (ui.galleryRelatives.size === 1) return;
-                  ui.galleryRelatives.delete(relative);
+                if (library.relatives.has(relative)) {
+                  if (library.relatives.size === 1) return;
+                  library.relatives.delete(relative);
                 } else {
-                  ui.galleryRelatives.add(relative);
+                  library.relatives.add(relative);
                 }
                 ui.galleryScroll = 0;
                 renderAll();
@@ -174,7 +193,7 @@
         }
 
         const actions = el('div', 'range-gallery-actions');
-        if (ui.mode === 'study' || ui.mode === 'training') {
+        if (ui.mode === 'training') {
           const labelsButton = el('button', 'icon-btn range-gallery-eye-btn' +
             (ui.showLabels ? '' : ' is-active'));
           labelsButton.type = 'button';
@@ -228,6 +247,7 @@
           card.type = 'button';
           card.dataset.help = `Carga ${RT.Engine.describeContext(context)} en el visualizador principal.`;
           card.setAttribute('aria-pressed', String(selected));
+          card.setAttribute('aria-label', `Abrir ${RT.Engine.describeContext(context)}`);
           if (active) card.setAttribute('aria-current', 'true');
           card.addEventListener('click', () => {
             ui.galleryScroll = track.scrollLeft;
@@ -248,6 +268,10 @@
             active ? 'Activo' : (selected ? 'Sel.' : ''));
           activeLabel.hidden = !active && !selected;
           cardHead.appendChild(activeLabel);
+          const favoriteMark = el('span', 'range-card-favorite',
+            RT.Favorites.has(context) ? '★' : '');
+          favoriteMark.setAttribute('aria-hidden', 'true');
+          cardHead.appendChild(favoriteMark);
           card.appendChild(cardHead);
           card.appendChild(miniGrid(context, revealRange));
 
